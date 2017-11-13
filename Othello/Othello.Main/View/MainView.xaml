@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:view="clr-namespace:Othello.Main.View"
+             x:Class="Othello.Main.View.MainView">
+  <ContentView.Content>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Button Grid.Row="0"
+                HorizontalOptions="Center"
+                Command="{Binding ToggleCellCommand}"
+                Text="Toggle"/>
+        <view:BoardView Grid.Row="1"
+                        BindingContext="{Binding Board}"
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Fill"
+                        />
+        </Grid>
+  </ContentView.Content>
+</ContentView>

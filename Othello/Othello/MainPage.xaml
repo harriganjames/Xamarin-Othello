@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Othello"
+             xmlns:view="clr-namespace:Othello.View"
+             x:Class="Othello.MainPage">
+
+    <ContentView>
+        <StackLayout>
+            <Label Text="MainPage" />
+            <!--<view:MainView/>-->
+        </StackLayout>
+    </ContentView>
+    
+</ContentPage>

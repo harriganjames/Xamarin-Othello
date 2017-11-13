@@ -1,0 +1,6 @@
+﻿Maybe make the CellView just the inner light-green part
+Have a "spine" width prop on Board, use this to pad each cell
+
+Maybe move CellView content into BoardView?
+May need click binding to point at board?
+
