@@ -27,6 +27,12 @@
     <Compile Update="View\BoardView.xaml.cs">
       <DependentUpon>BoardView.xaml</DependentUpon>
     </Compile>
+    <Compile Update="View\DiscView.xaml.cs">
+      <DependentUpon>DiscView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="View\TestView.xaml.cs">
+      <DependentUpon>TestView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

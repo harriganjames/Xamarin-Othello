@@ -1,5 +1,8 @@
 ﻿using Aub.Xamarin.Toolkit.ViewModel;
 using Othello.Main.Factories;
+using Othello.Main.Model;
+using System;
+using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace Othello.Main.ViewModel
@@ -7,6 +10,8 @@ namespace Othello.Main.ViewModel
     public class BoardViewModel : ViewModelBase
     {
         readonly CellViewModelFactory _cellViewModelFactory;
+
+        Action<CellViewModel> _cellClickAction;
 
         public BoardViewModel(CellViewModelFactory cellViewModelFactory)
         {
@@ -17,14 +22,19 @@ namespace Othello.Main.ViewModel
         }
 
 
-        public void Initialize(int rows, int columns)
+        public void Initialize(int rows, int columns, Action<CellViewModel> cellClickAction)
         {
             Rows = rows;
             Columns = columns;
             CellSpacing = 6.0;
-            for (int i = 0; i < Rows * Columns; i++)
+            _cellClickAction = cellClickAction;
+            for (int row = 0; row < columns; row++)
             {
-                Cells.Add(_cellViewModelFactory.Create(i));
+                for (int column = 0; column < rows; column++)
+                {
+                    var model = new CellModel(column, row);
+                    Cells.Add(_cellViewModelFactory.Create(model));
+                }
             }
         }
 
@@ -41,9 +51,29 @@ namespace Othello.Main.ViewModel
             if (cell == null)
                 return;
 
-            cell.ToggleState();
+            _cellClickAction?.Invoke(cell);
         }
 
+        public void UpdateBoard(List<CellTransitionModel> cells, bool isPending)
+        {
+            bool isPlayingSet = false;
+            foreach (var cell in cells)
+            {
+                var vm = GetCellViewModel(cell.Cell);
+                if (!isPlayingSet)
+                {
+                    vm.IsPlaying = isPending;
+                    isPlayingSet = true;
+                }
+                else
+                    vm.IsPending = isPending;
+                vm.NotifyChanged();
+            }
+        }
 
+        CellViewModel GetCellViewModel(CellModel cell)
+        {
+            return Cells[8 * cell.Row + cell.Column];
+        }
     }
 }

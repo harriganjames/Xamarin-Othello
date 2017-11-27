@@ -1,5 +1,6 @@
 ﻿using Aub.Xamarin.Toolkit.ViewModel;
 using Othello.Main.Enum;
+using Othello.Main.Model;
 using Xamarin.Forms;
 
 namespace Othello.Main.ViewModel
@@ -11,35 +12,45 @@ namespace Othello.Main.ViewModel
 
         }
 
-        public void Initialize(int index)
+        public void Initialize(CellModel cell)
         {
-            Index = index;
+            Cell = cell;
         }
 
-        private CellStateEnum _cellState = CellStateEnum.Off;
         public CellStateEnum CellState
         {
-            get { return _cellState; }
+            get { return Cell.State; }
+        }
+
+        public CellModel Cell { get; private set; }
+
+        private bool _isPending;
+
+        public bool IsPending
+        {
+            get { return _isPending; }
             set
             {
-                _cellState = value;
-                NotifyPropertyChanged();
+                SetValue(ref _isPending, value, () => IsPending);
             }
         }
 
-        public int Index { get; private set; }
+        private bool _isPlaying;
 
-
-        public void ToggleState()
+        public bool IsPlaying
         {
-            if (CellState == CellStateEnum.Off)
-                CellState = CellStateEnum.White;
-            else if (CellState == CellStateEnum.White)
-                CellState = CellStateEnum.Black;
-            else if (CellState == CellStateEnum.Black)
-                CellState = CellStateEnum.White;
+            get { return _isPlaying; }
+            set
+            {
+                SetValue(ref _isPlaying, value, () => IsPlaying);
+            }
         }
 
+
+        public void NotifyChanged()
+        {
+            NotifyAllPropertiesChanged();
+        }
 
     }
 }

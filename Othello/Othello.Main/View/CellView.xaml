@@ -7,11 +7,21 @@
              >
   <ContentView.Content>
     <Grid>
-        <BoxView Color="LightGreen"/>
-        <custom:EllipseView Color="{Binding CellState, Converter={StaticResource CellStateToColorConverter}, ConverterParameter=reverse}"
-                            Margin="1"/>
-        <custom:EllipseView Color="{Binding CellState, Converter={StaticResource CellStateToColorConverter}}"
-                        Margin="2"/>
+        <BoxView Color="LightGreen">
+            <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding IsPending}"
+                                 Value="True">
+                        <Setter Property="Color" Value="Yellow"/>
+                    </DataTrigger>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding IsPlaying}"
+                                 Value="True">
+                        <Setter Property="Color" Value="Orange"/>
+                    </DataTrigger>
+                </BoxView.Triggers>      
+        </BoxView>
+        <view:DiscView State="{Binding CellState}"/>
         </Grid>
     </ContentView.Content>
 </ContentView>

@@ -8,42 +8,19 @@ namespace Othello.Main.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        readonly BoardViewModelFactory _boardViewModelFactory;
-        public MainViewModel(BoardViewModelFactory boardViewModelFactory)
+        readonly GameViewModelFactory _gameViewModelFactory;
+        public MainViewModel(GameViewModelFactory gameViewModelFactory)
         {
-            _boardViewModelFactory = boardViewModelFactory;
-
+            _gameViewModelFactory = gameViewModelFactory;
         }
 
         public void Initialize()
         {
-            Board = _boardViewModelFactory.Create(8,8);
-
-            ToggleCellCommand = AddNewCommand(new Command(OnToggleCell));
+            Game = _gameViewModelFactory.Create();
         }
 
-        public Command ToggleCellCommand { get; set; }
 
-
-        public BoardViewModel Board { get; set; }
-
-        void OnToggleCell()
-        {
-            foreach (var cell in Board.Cells)
-            {
-                ToggleCellState(cell);
-            }
-        }
-
-        void ToggleCellState(CellViewModel cell)
-        {
-            if (cell.CellState == CellStateEnum.Off)
-                cell.CellState = CellStateEnum.White;
-            else if (cell.CellState == CellStateEnum.White)
-                cell.CellState = CellStateEnum.Black;
-            else if (cell.CellState == CellStateEnum.Black)
-                cell.CellState = CellStateEnum.White;
-        }
+        public GameViewModel Game { get; set; }
 
 
     }

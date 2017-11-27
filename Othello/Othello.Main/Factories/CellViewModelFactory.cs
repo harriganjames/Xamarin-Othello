@@ -1,5 +1,6 @@
 ﻿using System;
 using Othello.Main.ViewModel;
+using Othello.Main.Model;
 
 namespace Othello.Main.Factories
 {
@@ -12,10 +13,10 @@ namespace Othello.Main.Factories
             _creator = creator;
         }
 
-        public CellViewModel Create(int index)
+        public CellViewModel Create(CellModel cell)
         {
             var vm = _creator();
-            vm.Initialize(index);
+            vm.Initialize(cell);
             return vm;
         }
 

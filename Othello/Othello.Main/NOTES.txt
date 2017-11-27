@@ -1,6 +1,28 @@
-﻿Maybe make the CellView just the inner light-green part
-Have a "spine" width prop on Board, use this to pad each cell
+﻿
+"Turn" indicator - 
+New Game button - 
+Score - Corners, Sides, Total
+Hint button - show possible cells
+Confirm/Undo turn
 
-Maybe move CellView content into BoardView?
-May need click binding to point at board?
+
+[white box with score][hint/confirm+undo buttons][black box with]
+
+[0][new game][0]
+[2][white turn][2]
+play
+[10+5=15][confirm][undo][12-4=8]
+[15][black turn][8]
+
+
+PlayCell(r,c)
+
+
+Disc stacks
+-----------
+
+GameViewModel to have WhiteDiscs and BlackDiscs, holding collections of new DiscViewModels.
+GameView to have AbsoluteLayout and construct own stacks of discs.
+When moving a disc, set size and animate coords,
+then add DiscVM to cell vm?
 

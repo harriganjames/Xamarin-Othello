@@ -12,10 +12,10 @@ namespace Othello.Main.Factories
             _creator = creator;
         }
 
-        public BoardViewModel Create(int rows, int columns)
+        public BoardViewModel Create(int rows, int columns, Action<CellViewModel> clickAction)
         {
             var vm = _creator();
-            vm.Initialize(rows,columns);
+            vm.Initialize(rows,columns,clickAction);
             return vm;
         }
 

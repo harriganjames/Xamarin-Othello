@@ -6,11 +6,8 @@
              x:Class="Othello.Main.View.BoardView"
              x:Name="this"
              >
-    <control:ChessboardView  Rows="{Binding Rows}"
-                             Columns="{Binding Columns}"
-                             ItemsSource="{Binding Cells}"
+    <control:ChessboardView ItemsSource="{Binding Cells}"
                              BoardBackgroundColor="DarkGreen"
-                             CellSpacing="{Binding CellSpacing}"
                              >
         <control:ChessboardView.ItemTemplate>
             <DataTemplate>

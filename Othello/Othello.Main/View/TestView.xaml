@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:custom="clr-namespace:Aub.Xamarin.Toolkit.CustomViews;assembly=Aub.Xamarin.Toolkit"
+             x:Class="Othello.Main.View.TestView">
+  <ContentView.Content>
+        <AbsoluteLayout BackgroundColor="LightGray">
+
+            <Button AbsoluteLayout.LayoutBounds="50,300,100,50"
+                    Text="Go"
+                    Clicked="Go"/>
+
+            <Grid AbsoluteLayout.LayoutBounds="400,300,200,200">
+                <custom:EllipseView x:Name="white" Color="White"
+                            Margin="1"/>
+                <custom:EllipseView x:Name="black" Color="Black"
+                            Margin="2"/>
+            </Grid>
+
+        </AbsoluteLayout>
+  </ContentView.Content>
+</ContentView>

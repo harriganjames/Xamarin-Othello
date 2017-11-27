@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -12,46 +9,12 @@ namespace Othello.Main.Control
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class ChessboardView : ContentView
     {
-        Grid _grid;
+        AbsoluteLayout _layout;
 
         public ChessboardView()
         {
-            //InitializeComponent();
-        }
-
-        public int Columns
-        {
-            get { return (int)GetValue(ColumnsProperty); }
-            set { SetValue(ColumnsProperty, value); }
-        }
-
-        public static readonly BindableProperty ColumnsProperty =
-            BindableProperty.Create("Columns", typeof(int), typeof(ChessboardView), 0, propertyChanged: OnColumnsChanged);
-
-
-        static void OnColumnsChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            var board = (ChessboardView)bindable;
-
-            board.CreateBoard();
-        }
-
-
-        public int Rows
-        {
-            get { return (int)GetValue(RowsProperty); }
-            set { SetValue(RowsProperty, value); }
-        }
-
-        public static readonly BindableProperty RowsProperty =
-            BindableProperty.Create("Rows", typeof(int), typeof(ChessboardView), 0, propertyChanged: OnRowsChanged);
-
-
-        static void OnRowsChanged(BindableObject bindable, object oldValue, object newValue)
-        {
-            var board = (ChessboardView)bindable;
-
-            board.CreateBoard();
+            _layout = new AbsoluteLayout() { HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
+            this.Content = _layout;
         }
 
 
@@ -67,27 +30,27 @@ namespace Othello.Main.Control
         static void OnItemsSourceChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var board = (ChessboardView)bindable;
+            board.BuildLayout();
 
-            board.CreateBoard();
+            //board.CreateBoard();
         }
 
-        public Color BoardBackgroundColor { get; set; }
-        //public double BoardPadding { get; set; }
-
-        public double CellSpacing
+        public Color BoardBackgroundColor
         {
-            get { return (double)GetValue(CellSpacingProperty); }
-            set { SetValue(CellSpacingProperty, value); }
+            get { return (Color)GetValue(BoardBackgroundColorProperty); }
+            set { SetValue(BoardBackgroundColorProperty, value); }
         }
 
-        public static readonly BindableProperty CellSpacingProperty =
-            BindableProperty.Create("CellSpacing", typeof(double), typeof(ChessboardView), 0.0, propertyChanged: OnCellSpacingChanged);
+        // Using a DependencyProperty as the backing store for BoardBackgroundColor.  This enables animation, styling, binding, etc...
+        public static readonly BindableProperty BoardBackgroundColorProperty =
+            BindableProperty.Create("BoardBackgroundColor", typeof(Color), typeof(ChessboardView), Color.Transparent, propertyChanged: OnBoardBackgroundColorChanged);
 
-        static void OnCellSpacingChanged(BindableObject bindable, object oldValue, object newValue)
+
+        static void OnBoardBackgroundColorChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var board = (ChessboardView)bindable;
-
-            board.CreateBoard();
+            if(board.Content!=null)
+                board.Content.BackgroundColor = (Color)newValue;
         }
 
 
@@ -103,68 +66,70 @@ namespace Othello.Main.Control
         static void OnItemTemplateChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var board = (ChessboardView)bindable;
-
-            board.CreateBoard();
+            board.BuildLayout();
         }
 
 
         protected override void OnSizeAllocated(double width, double height)
         {
             base.OnSizeAllocated(width, height);
-            if (_grid != null)
+            if (width>0 && height>0)
             {
-                var size = Math.Min(width, height);
-                _grid.WidthRequest = size;
-                _grid.HeightRequest = size;
+                LayoutBoard();
             }
         }
 
+        double _gapRatio = 0.05;
 
-        void CreateBoard()
+
+        void BuildLayout()
         {
-            if (Rows == 0 || Columns == 0 || ItemsSource == null || ItemTemplate == null || CellSpacing==0)
+            if (ItemsSource == null || ItemTemplate == null)
                 return;
 
-            _grid = new Grid() { RowSpacing = 0, ColumnSpacing = 0, HorizontalOptions = LayoutOptions.Center, VerticalOptions = LayoutOptions.Center };
-            _grid.BackgroundColor = BoardBackgroundColor;
-            _grid.Padding = CellSpacing/2;
-
-            for (int row = 0; row < Rows; row++)
-            {
-                var rd = new RowDefinition();
-                rd.Height = GridLength.Star;
-                _grid.RowDefinitions.Add(rd);
-            }
-
-            for (int col = 0; col < Columns; col++)
-            {
-                var cd = new ColumnDefinition();
-                cd.Width = GridLength.Star;
-                _grid.ColumnDefinitions.Add(cd);
-            }
-
-            int gridRow = 0;
-            int gridCol = 0;
+            _layout.Children.Clear();
             foreach (var item in ItemsSource)
             {
-                var cell = ItemTemplate.CreateContent() as ViewCell;
+                var cell = ItemTemplate?.CreateContent() as ViewCell;
                 if (cell != null)
                 {
                     cell.View.BindingContext = item;
-                    cell.View.Margin = CellSpacing / 2;
-                    cell.View.SetValue(Grid.ColumnProperty, gridCol);
-                    cell.View.SetValue(Grid.RowProperty, gridRow);
-                    _grid.Children.Add(cell.View);
+                    _layout.Children.Add(cell.View);
                 }
-                gridCol++;
-                if (gridCol >= Columns)
+            }
+        }
+
+        void LayoutBoard()
+        {
+            double width = this.Width;
+            double height = this.Height;
+
+            int cells = 8;
+            double maxSize = Math.Min(width, height);
+            double gapSize = Math.Round(maxSize / cells * _gapRatio);
+            double remaining = maxSize - (gapSize * (cells + 1));
+            double cellSize = Math.Floor(remaining / cells);
+            double newSize = cellSize * cells + gapSize * (cells + 1);
+            _layout.WidthRequest = newSize;
+            _layout.HeightRequest = newSize;
+
+            int row = 0;
+            int col = 0;
+            foreach (var view in _layout.Children)
+            {
+                var rec = new Rectangle(gapSize + col * (gapSize + cellSize),
+                                        gapSize + row * (gapSize + cellSize),
+                                        cellSize, cellSize);
+                AbsoluteLayout.SetLayoutBounds(view, rec);
+                row++;
+                if (row >= cells)
                 {
-                    gridCol = 0;
-                    gridRow++;
+                    row = 0;
+                    col++;
                 }
             }
 
-            this.Content = _grid;
+
         }
 
 

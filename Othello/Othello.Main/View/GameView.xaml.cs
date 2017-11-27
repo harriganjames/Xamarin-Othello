@@ -10,12 +10,11 @@ using Xamarin.Forms.Xaml;
 namespace Othello.Main.View
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class BoardView : ContentView
+	public partial class GameView : ContentView
 	{
-		public BoardView ()
+		public GameView ()
 		{
 			InitializeComponent ();
 		}
-
-    }
+	}
 }

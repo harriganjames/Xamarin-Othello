@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:custom="clr-namespace:Aub.Xamarin.Toolkit.CustomViews;assembly=Aub.Xamarin.Toolkit"
+             xmlns:view="clr-namespace:Othello.Main.View"
+             x:Class="Othello.Main.View.DiscView"
+             x:Name="this"
+             >
+  <ContentView.Content>
+        <Grid BindingContext="{Binding Source={x:Reference this}}">
+            <custom:EllipseView Color="{Binding TransitionedState, Converter={StaticResource CellStateToColorConverter}, ConverterParameter=reverse}"
+                            Margin="1"/>
+            <custom:EllipseView Color="{Binding TransitionedState, Converter={StaticResource CellStateToColorConverter}}"
+                            Margin="2"/>
+        </Grid>
+    </ContentView.Content>
+</ContentView>

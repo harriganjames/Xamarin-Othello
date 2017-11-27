@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Othello.Main.Engine;
 using Othello.Main.Factories;
 using Othello.Main.ViewModel;
 
@@ -21,6 +22,10 @@ namespace Othello.Main.Bootstrap
             cb.RegisterType<CellViewModelFactory>().SingleInstance();
             cb.RegisterType<BoardViewModel>();
             cb.RegisterType<BoardViewModelFactory>().SingleInstance();
+            cb.RegisterType<GameViewModel>();
+            cb.RegisterType<GameViewModelFactory>().SingleInstance();
+            cb.RegisterType<OthelloEngine>();
+            cb.RegisterType<OthelloEngineFactory>().SingleInstance();
         }
     }
 }

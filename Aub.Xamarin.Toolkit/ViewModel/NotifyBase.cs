@@ -53,6 +53,32 @@ namespace Aub.Xamarin.Toolkit.ViewModel
             return set;
         }
 
+        protected bool SetValue(ref string field, string value, Expression<Func<object>> property)
+        {
+            bool set = false;
+            if (field != value)
+            {
+                field = value;
+                NotifyPropertyChanged(property);
+                set = true;
+            }
+            return set;
+        }
+
+        protected bool SetValue<T>(ref T field, T value, Expression<Func<object>> property)
+        {
+            bool set = false;
+            if (!field.Equals(value))
+            {
+                field = value;
+                NotifyPropertyChanged(property);
+                set = true;
+            }
+            return set;
+        }
+
+
+
         public virtual void NotifyPropertyChanged(PropertyChangedEventArgs args)
         {
             PropertyChanged?.Invoke(this, args);

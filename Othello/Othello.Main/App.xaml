@@ -7,6 +7,8 @@
         <ResourceDictionary>
             <conv:CellStateToColorConverter x:Key="CellStateToColorConverter"/>
             <conv:DoubleAdditionConverter x:Key="DoubleAdditionConverter"/>
+            <conv:CellStateToBoolConverter x:Key="CellStateToBoolConverter"/>
+            <conv:ReverseBoolConverter x:Key="ReverseBoolConverter"/>
         </ResourceDictionary>
 		<!-- Application resource dictionary -->
 

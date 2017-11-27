@@ -5,19 +5,8 @@
              x:Class="Othello.Main.View.MainView">
   <ContentView.Content>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Button Grid.Row="0"
-                HorizontalOptions="Center"
-                Command="{Binding ToggleCellCommand}"
-                Text="Toggle"/>
-        <view:BoardView Grid.Row="1"
-                        BindingContext="{Binding Board}"
-                        HorizontalOptions="Fill"
-                        VerticalOptions="Fill"
-                        />
+        <view:GameView BindingContext="{Binding Game}"/>
+            <!--<view:TestView/>-->
         </Grid>
   </ContentView.Content>
 </ContentView>
