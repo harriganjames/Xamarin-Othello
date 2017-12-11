@@ -26,3 +26,33 @@ GameView to have AbsoluteLayout and construct own stacks of discs.
 When moving a disc, set size and animate coords,
 then add DiscVM to cell vm?
 
+Have switched DiscView to use DiscStateEnum.
+
+Next:
+
+Engine to be only concerned with Cells and their state (Off, Black, White)
+Only BoardView to deal with dics - manage pool, stacks, color and location
+
+Need to communicate the sequence list of moves to the BoardView
+does a disc need a unique number?
+
+
+New
+---
+
+BoardView to hold collections of CellViews and DiscViews.
+BoardView to have an IsBusy prop to notify VM when it's animating.
+* CellView content define in controlTemplate in default style (so can be changed)
+BoardView controls state of Disc
+BoardView to maintain assignment of discs to cells
+BV to store links between VMs and Vs.
+How to communicate cell/disc state from VM to View?
+PlaySet: 
+	move disc x from stack to cell y
+	move disc x from cell y to stack
+	list of cell/disc numbers to flip/change state
+
+
+
+
+

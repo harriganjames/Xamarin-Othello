@@ -5,7 +5,12 @@
              xmlns:view="clr-namespace:Othello.Main.View"
              x:Class="Othello.Main.View.CellView"
              >
-  <ContentView.Content>
+    <ContentView.Resources>
+        <ResourceDictionary>
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <!--AbsoluteLayout.LayoutBounds="{Binding Location}"-->
+    <ContentView.Content>
     <Grid>
         <BoxView Color="LightGreen">
             <BoxView.Triggers>
@@ -21,7 +26,8 @@
                     </DataTrigger>
                 </BoxView.Triggers>      
         </BoxView>
-        <view:DiscView State="{Binding CellState}"/>
+            <view:Disc2View State="{Binding CellState}" InUse="{Binding InUse}"
+                            />
         </Grid>
     </ContentView.Content>
 </ContentView>

@@ -22,6 +22,8 @@ namespace Othello.Main.ViewModel
             get { return Cell.State; }
         }
 
+        public bool InUse => CellState != CellStateEnum.Empty;
+
         public CellModel Cell { get; private set; }
 
         private bool _isPending;
@@ -32,6 +34,7 @@ namespace Othello.Main.ViewModel
             set
             {
                 SetValue(ref _isPending, value, () => IsPending);
+                NotifyPropertyChanged(() => InUse);
             }
         }
 
@@ -43,6 +46,21 @@ namespace Othello.Main.ViewModel
             set
             {
                 SetValue(ref _isPlaying, value, () => IsPlaying);
+                NotifyPropertyChanged(() => InUse);
+            }
+        }
+
+        private Rectangle _location;
+        public Rectangle Location
+        {
+            get { return _location; }
+            set
+            {
+                if (_location != value)
+                {
+                    _location = value;
+                    NotifyPropertyChanged();
+                }
             }
         }
 

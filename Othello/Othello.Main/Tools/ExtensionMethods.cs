@@ -18,14 +18,14 @@ namespace Othello.Main.Tools
         static public CellStateEnum GetOppositeState(this CellStateEnum thisState)
         {
             CellStateEnum state;
-            if (thisState == CellStateEnum.Off)
+            if (thisState == CellStateEnum.Empty)
                 state = CellStateEnum.White;
             else if (thisState == CellStateEnum.White)
                 state = CellStateEnum.Black;
             else if (thisState == CellStateEnum.Black)
                 state = CellStateEnum.White;
             else
-                state = CellStateEnum.Off;
+                state = CellStateEnum.Empty;
             return state;
         }
     }

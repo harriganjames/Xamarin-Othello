@@ -7,7 +7,7 @@ namespace Othello.Main.Model
 {
     public class CellModel
     {
-        public CellModel(int column, int row) : this(column, row, CellStateEnum.Off)
+        public CellModel(int column, int row) : this(column, row, CellStateEnum.Empty)
         {
         }
 
@@ -22,6 +22,7 @@ namespace Othello.Main.Model
         public int Row { get; private set; }
         public int Column { get; private set; }
         public CellStateEnum State { get; set; }
+        public DiscModel Disc { get; set; }
 
         public override string ToString()
         {

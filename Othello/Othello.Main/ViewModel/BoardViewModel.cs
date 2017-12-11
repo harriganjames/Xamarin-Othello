@@ -18,7 +18,7 @@ namespace Othello.Main.ViewModel
             _cellViewModelFactory = cellViewModelFactory;
 
             Cells = new ObservableCollectionSafe<CellViewModel>();
-            CellTappedCommand = AddNewCommand(new Command(OnCellClicked));
+            CellTappedCommand = AddNewCommand(new Command(OnCellTapped));
         }
 
 
@@ -28,9 +28,9 @@ namespace Othello.Main.ViewModel
             Columns = columns;
             CellSpacing = 6.0;
             _cellClickAction = cellClickAction;
-            for (int row = 0; row < columns; row++)
+            for (int row = 0; row < rows; row++)
             {
-                for (int column = 0; column < rows; column++)
+                for (int column = 0; column < columns; column++)
                 {
                     var model = new CellModel(column, row);
                     Cells.Add(_cellViewModelFactory.Create(model));
@@ -45,7 +45,20 @@ namespace Othello.Main.ViewModel
         public ObservableCollectionSafe<CellViewModel> Cells { get; set; }
         public double CellSpacing { get; set; }
 
-        void OnCellClicked(object param)
+        private PlaySetModel _playSet;
+
+        public PlaySetModel PlaySet
+        {
+            get { return _playSet; }
+            set
+            {
+                _playSet = value;
+                NotifyPropertyChanged();
+            }
+        }
+
+
+        void OnCellTapped(object param)
         {
             var cell = param as CellViewModel;
             if (cell == null)

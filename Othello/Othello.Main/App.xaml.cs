@@ -18,6 +18,8 @@ namespace Othello.Main
         {
             InitializeComponent();
 
+            var x = this.Resources;
+
             _container = setup.CreateContainer();
 
             _container.BeginLifetimeScope();

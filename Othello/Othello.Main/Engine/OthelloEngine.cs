@@ -10,21 +10,32 @@ namespace Othello.Main.Engine
     public class OthelloEngine
     {
         CellModel[] _board;
+        List<DiscModel> _whiteDiscs;
+        List<DiscModel> _blackDiscs;
         List<CellTransitionModel> _lastSequence;
 
 
         public OthelloEngine()
         {
             _lastSequence = new List<CellTransitionModel>();
+            _whiteDiscs = new List<DiscModel>();
+            _blackDiscs = new List<DiscModel>();
         }
 
-        public void Initialize(IEnumerable<CellModel> cells)
+        public void Initialize(IEnumerable<CellModel> cells)//, IEnumerable<DiscModel> discs)
         {
             _board = new CellModel[cells.Count()];
             foreach (var cell in cells)
             {
                 _board[8 * cell.Row + cell.Column] = cell;
             }
+        //    foreach (var disc in discs)
+        //    {
+        //        if (disc.DiscColor == DiscColor.White)
+        //            _whiteDiscs.Add(disc);
+        //        else
+        //            _blackDiscs.Add(disc);
+        //    }
         }
 
         public CellStateEnum Turn { get; private set; }
@@ -43,7 +54,7 @@ namespace Othello.Main.Engine
             {
                 for (int row = 0; row < 8; row++)
                 {
-                    SetCellState(column, row, CellStateEnum.Off);
+                    SetCellState(column, row, CellStateEnum.Empty);
                 }
             }
             SetCellState(3, 3, CellStateEnum.White);
@@ -59,7 +70,7 @@ namespace Othello.Main.Engine
 
         public bool PlayCell(CellModel playCell)
         {
-            if (playCell.State != CellStateEnum.Off)
+            if (playCell.State != CellStateEnum.Empty)
                 return false;
 
             var acs = GetAdjacentCells(playCell);
@@ -180,7 +191,7 @@ namespace Othello.Main.Engine
                 {
                     col += colIncrement;
                     row += rowIncrement;
-                    if (col >= 8 || row >= 8)
+                    if (col >= 8 || row >= 8 || col<0 || row<0)
                         break;
                     var incCell = GetCell(col, row);
                     if (incCell.State==Turn)
@@ -188,7 +199,7 @@ namespace Othello.Main.Engine
                         isValidSpoke = true;
                         break;
                     }
-                    if (incCell.State == CellStateEnum.Off)
+                    if (incCell.State == CellStateEnum.Empty)
                         break;
                     spoke.Add(incCell);
                 }

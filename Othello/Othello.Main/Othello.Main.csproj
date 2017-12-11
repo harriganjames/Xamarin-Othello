@@ -20,12 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ResourceDictionaries\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="View\BoardView.xaml.cs">
-      <DependentUpon>BoardView.xaml</DependentUpon>
+    <Compile Update="View\OldBoardView.xaml.cs">
+      <DependentUpon>OldBoardView.xaml</DependentUpon>
     </Compile>
     <Compile Update="View\DiscView.xaml.cs">
       <DependentUpon>DiscView.xaml</DependentUpon>

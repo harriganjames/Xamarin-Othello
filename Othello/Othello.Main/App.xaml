@@ -2,15 +2,48 @@
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:conv="clr-namespace:Othello.Main.Converters"
+             xmlns:res="clr-namespace:Othello.Main.ResourceDictionaries"
+             xmlns:custom="clr-namespace:Aub.Xamarin.Toolkit.CustomViews;assembly=Aub.Xamarin.Toolkit"
+             xmlns:view="clr-namespace:Othello.Main.View"
              x:Class="Othello.Main.App">
 	<Application.Resources>
+        <!--<ResourceDictionary.MergedDictionaries>
+            <res:DefaultStyles/>
+        </ResourceDictionary.MergedDictionaries>-->
         <ResourceDictionary>
+ 
             <conv:CellStateToColorConverter x:Key="CellStateToColorConverter"/>
             <conv:DoubleAdditionConverter x:Key="DoubleAdditionConverter"/>
             <conv:CellStateToBoolConverter x:Key="CellStateToBoolConverter"/>
+            <conv:DiscStateToBoolConverter x:Key="DiscStateToBoolConverter"/>
             <conv:ReverseBoolConverter x:Key="ReverseBoolConverter"/>
+
+            <Style TargetType="view:Disc2View">
+                <Setter Property="ControlTemplate">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Grid>
+                                <!--<Grid x:Name="flatGrid" IsVisible="{TemplateBinding InUse, Converter={StaticResource ReverseBoolConverter}}" RowSpacing="0">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <BoxView Grid.Row="0" Color="White"/>
+                                    <BoxView Grid.Row="1" Color="Black"/>
+                                </Grid>-->
+                                <Grid IsVisible="{TemplateBinding InUse}">
+                                    <custom:EllipseView Color="{TemplateBinding TransitionedState, Converter={StaticResource CellStateToColorConverter}, ConverterParameter=reverse}"
+                                                    Margin="1"/>
+                                    <custom:EllipseView Color="{TemplateBinding TransitionedState, Converter={StaticResource CellStateToColorConverter}}"
+                                                    Margin="2"/>
+                                </Grid>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
         </ResourceDictionary>
-		<!-- Application resource dictionary -->
 
 	</Application.Resources>
 </Application>

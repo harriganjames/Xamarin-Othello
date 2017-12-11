@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ResourceDictionary xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:custom="clr-namespace:Aub.Xamarin.Toolkit.CustomViews;assembly=Aub.Xamarin.Toolkit"
+             xmlns:view="clr-namespace:Othello.Main.View"
+             x:Class="Othello.Main.ResourceDictionaries.DefaultStyles">
+    <!--<Style TargetType="view:Disc2View">
+        <Setter Property="ControlTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid IsVisible="{TemplateBinding InUse}">
+                        <custom:EllipseView Color="{TemplateBinding TransitionedState, Converter={StaticResource CellStateToColorConverter}, ConverterParameter=reverse}"
+                            Margin="1"/>
+                        <custom:EllipseView Color="{TemplateBinding TransitionedState, Converter={StaticResource CellStateToColorConverter}}"
+                            Margin="5"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
+</ResourceDictionary>

@@ -138,15 +138,15 @@ namespace Othello.Main.ViewModel
             }
         }
 
-        void SetCell(CellModel trans)
-        {
-            SetCell(trans.Column, trans.Row, trans.State);
-        }
+        //void SetCell(CellModel trans)
+        //{
+        //    SetCell(trans.Column, trans.Row, trans.State);
+        //}
 
-        void SetCell(int column, int row, CellStateEnum state)
-        {
-            Board.Cells[8 * row + column].Cell.State = state;
-        }
+        //void SetCell(int column, int row, CellStateEnum state)
+        //{
+        //    Board.Cells[8 * row + column].Cell.State = state;
+        //}
 
     }
 }

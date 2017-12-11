@@ -1,28 +1,33 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:view="clr-namespace:Othello.Main.View"
              xmlns:control="clr-namespace:Othello.Main.Control"
-             x:Class="Othello.Main.View.BoardView"
-             x:Name="this"
-             >
-    <control:ChessboardView ItemsSource="{Binding Cells}"
-                             BoardBackgroundColor="DarkGreen"
-                             >
-        <control:ChessboardView.ItemTemplate>
-            <DataTemplate>
-                <ViewCell>
-                    <ContentView>
-                        <ContentView.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={x:Reference this}, Path=BindingContext.CellTappedCommand}"
+             xmlns:view="clr-namespace:Othello.Main.View"
+             x:Class="Othello.Main.View.BoardView">
+  <ContentView.Content>
+        <control:OthelloBoardControl x:Name="board"
+                                     CellItemsSource="{Binding Cells}"
+                                     CellTappedCommand="{Binding CellTappedCommand}"
+                                     BoardBackgroundColor="DarkGreen"                            
+                                     HorizontalOptions="Fill"
+                                     VerticalOptions="Fill"
+                                     Margin="3"
+                                     >
+            <!--<control:OthelloBoardControl.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ContentView>
+                            <ContentView.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:Reference board}, Path=BindingContext.CellTappedCommand}"
                                                   CommandParameter="{Binding}"/>
-                        </ContentView.GestureRecognizers>
-                        <view:CellView VerticalOptions="Fill"
+                            </ContentView.GestureRecognizers>
+                            <view:CellView VerticalOptions="Fill"
                                HorizontalOptions="Fill"
                                />
-                    </ContentView>
-                </ViewCell>
-            </DataTemplate>
-        </control:ChessboardView.ItemTemplate>
-    </control:ChessboardView>
+                        </ContentView>
+                    </ViewCell>
+                </DataTemplate>
+            </control:OthelloBoardControl.ItemTemplate>-->
+        </control:OthelloBoardControl>
+    </ContentView.Content>
 </ContentView>

@@ -1,22 +1,15 @@
 ﻿using Othello.Main.Enum;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace Othello.Main.View
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class DiscView : ContentView
-	{
-		public DiscView()
-		{
-			InitializeComponent();
+    public class Disc2View : ContentView
+    {
+        public Disc2View()
+        {
 
-		}
-
+        }
 
 
 
@@ -28,7 +21,7 @@ namespace Othello.Main.View
 
         // Using a DependencyProperty as the backing store for InUse.  This enables animation, styling, binding, etc...
         public static readonly BindableProperty InUseProperty =
-            BindableProperty.Create("InUse", typeof(bool), typeof(DiscView), false);
+            BindableProperty.Create("InUse", typeof(bool), typeof(Disc2View), false);
 
 
 
@@ -39,7 +32,7 @@ namespace Othello.Main.View
         }
 
         public static readonly BindableProperty StateProperty =
-            BindableProperty.Create("State", typeof(CellStateEnum), typeof(DiscView), CellStateEnum.Empty, propertyChanged:OnStatePropertyChanged);
+            BindableProperty.Create("State", typeof(CellStateEnum), typeof(Disc2View), CellStateEnum.Empty, propertyChanged: OnStatePropertyChanged);
 
         public CellStateEnum TransitionedState
         {
@@ -48,24 +41,24 @@ namespace Othello.Main.View
         }
 
         public static readonly BindableProperty TransitionedStateProperty =
-            BindableProperty.Create("TransitionedState", typeof(CellStateEnum), typeof(DiscView), CellStateEnum.Empty);
+            BindableProperty.Create("TransitionedState", typeof(CellStateEnum), typeof(Disc2View), CellStateEnum.Empty);
 
 
         static async void OnStatePropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
-            var discView = (DiscView)bindable;
+            var Disc2View = (Disc2View)bindable;
             var oldState = (CellStateEnum)oldValue;
             var newState = (CellStateEnum)newValue;
 
-            if(oldState!=CellStateEnum.Empty)
+            if (oldState != CellStateEnum.Empty)
             {
-                await discView.RotateYTo(90);
-                discView.TransitionedState = newState;
-                await discView.RotateYTo(0);
+                await Disc2View.RotateYTo(90);
+                Disc2View.TransitionedState = newState;
+                await Disc2View.RotateYTo(0);
             }
             else
             {
-                discView.TransitionedState = newState;
+                Disc2View.TransitionedState = newState;
             }
 
 
