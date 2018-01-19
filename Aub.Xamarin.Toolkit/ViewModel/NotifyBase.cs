@@ -68,7 +68,15 @@ namespace Aub.Xamarin.Toolkit.ViewModel
         protected bool SetValue<T>(ref T field, T value, Expression<Func<object>> property)
         {
             bool set = false;
-            if (!field.Equals(value))
+            bool different = false;
+            if (field == null && value != null)
+                different = true;
+            else if (field != null && value == null)
+                different = true;
+            else if (field != null && value != null && !field.Equals(value))
+                different = true;
+
+            if (different)
             {
                 field = value;
                 NotifyPropertyChanged(property);

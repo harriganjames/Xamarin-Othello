@@ -20,6 +20,8 @@ namespace Othello.Main.Bootstrap
             cb.RegisterType<MainViewModelFactory>().SingleInstance();
             cb.RegisterType<CellViewModel>();
             cb.RegisterType<CellViewModelFactory>().SingleInstance();
+            cb.RegisterType<DiscViewModel>();
+            cb.RegisterType<DiscViewModelFactory>().SingleInstance();
             cb.RegisterType<BoardViewModel>();
             cb.RegisterType<BoardViewModelFactory>().SingleInstance();
             cb.RegisterType<GameViewModel>();

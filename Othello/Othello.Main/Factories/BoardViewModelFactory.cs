@@ -1,5 +1,7 @@
 ﻿using System;
 using Othello.Main.ViewModel;
+using System.Collections.Generic;
+using Othello.Main.Model;
 
 namespace Othello.Main.Factories
 {
@@ -12,10 +14,10 @@ namespace Othello.Main.Factories
             _creator = creator;
         }
 
-        public BoardViewModel Create(int rows, int columns, Action<CellViewModel> clickAction)
+        public BoardViewModel Create(IEnumerable<CellModel> cells, IEnumerable<DiscModel> discs, Action<CellModel> clickAction)
         {
             var vm = _creator();
-            vm.Initialize(rows,columns,clickAction);
+            vm.Initialize(cells,discs,clickAction);
             return vm;
         }
 

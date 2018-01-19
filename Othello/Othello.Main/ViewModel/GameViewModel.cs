@@ -31,8 +31,8 @@ namespace Othello.Main.ViewModel
 
         public void Initialize()
         {
-            Board = _boardViewModelFactory.Create(8, 8, OnCellClick);
-            _othelloEngine = _othelloEngineFactory.Create(Board.Cells.Select(c => c.Cell));
+            _othelloEngine = _othelloEngineFactory.Create();
+            Board = _boardViewModelFactory.Create(_othelloEngine.Cells, _othelloEngine.Discs, OnCellClick);
 
             OnNewGame();
         }
@@ -63,8 +63,8 @@ namespace Othello.Main.ViewModel
             }
         }
 
-        private CellStateEnum _turn;
-        public CellStateEnum Turn
+        private OthelloColor _turn;
+        public OthelloColor Turn
         {
             get { return _turn; }
             set
@@ -92,26 +92,26 @@ namespace Othello.Main.ViewModel
         void OnNewGame()
         {
             _othelloEngine.NewGame();
-            UpdateBoard();
+            UpdateGame();
         }
 
         void OnConfirm()
         {
             _othelloEngine.Confirm();
             IsPending = false;
-            UpdateBoard();
+            UpdateGame();
         }
 
         void OnUndo()
         {
             _othelloEngine.UndoLastSequence();
             IsPending = false;
-            UpdateBoard();
+            UpdateGame();
         }
 
-        void UpdateBoard()
+        void UpdateGame()
         {
-            Board.UpdateBoard(_othelloEngine.Sequence,IsPending);
+            Board.UpdateBoard(_othelloEngine.PlaySet);
             WhiteScore = PointsToString(_othelloEngine.WhitePoints,_othelloEngine.WhitePointsPending);
             BlackScore = PointsToString(_othelloEngine.BlackPoints,_othelloEngine.BlackPointsPending);
             Turn = _othelloEngine.Turn;
@@ -129,24 +129,14 @@ namespace Othello.Main.ViewModel
             return sb.ToString();
         }
 
-        void OnCellClick(CellViewModel cell)
+        void OnCellClick(CellModel cell)
         {
-            if (_othelloEngine.PlayCell(cell.Cell))
+            if (_othelloEngine.PlayCell(cell))
             {
                 IsPending = true;
-                UpdateBoard();
+                UpdateGame();
             }
         }
-
-        //void SetCell(CellModel trans)
-        //{
-        //    SetCell(trans.Column, trans.Row, trans.State);
-        //}
-
-        //void SetCell(int column, int row, CellStateEnum state)
-        //{
-        //    Board.Cells[8 * row + column].Cell.State = state;
-        //}
 
     }
 }

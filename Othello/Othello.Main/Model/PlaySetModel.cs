@@ -6,13 +6,20 @@ namespace Othello.Main.Model
 {
     public class PlaySetModel
     {
-        public PlaySetModel(List<CellTransitionModel> cellTransitions, bool isUndo)
+        public PlaySetModel()
         {
-            CellTransitions = cellTransitions;
-            IsUndo = isUndo;
+            Cells = new List<CellModel>();
+            Discs = new List<DiscModel>();
         }
 
-        public List<CellTransitionModel> CellTransitions { get; private set; }
-        public bool IsUndo { get; private set; }
+        public List<CellModel> Cells { get; private set; }
+        public List<DiscModel> Discs { get; private set; }
+
+        public void Reset()
+        {
+            Cells.Clear();
+            Discs.Clear();
+            //IsUndo = false;
+        }
     }
 }

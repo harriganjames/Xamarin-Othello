@@ -1,5 +1,6 @@
 ﻿using Aub.Xamarin.Toolkit.ViewModel;
 using Othello.Main.Enum;
+using Othello.Main.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,25 +9,28 @@ namespace Othello.Main.ViewModel
 {
     public class DiscViewModel : ViewModelBase
     {
-        public DiscViewModel()
-        {
+        DiscModel _discModel;
 
+        public void Initialize(DiscModel disc)
+        {
+            _discModel = disc;
         }
 
-        public void Initialize(DiscStateEnum state)
+        bool _inUse;
+        public bool InUse
         {
-            _state = state;
+            get { return _inUse; }
+            set { SetValue(ref _inUse, value, () => InUse); }
         }
 
-        DiscStateEnum _state;
-        public DiscStateEnum State
+        OthelloColor _discColor;
+        public OthelloColor DiscColor
         {
-            get { return _state; }
-            set
-            {
-                SetValue(ref _state, value, () => State);
-            }
+            get { return _discColor; }
+            set { SetValue(ref _discColor, value, () => DiscColor); }
         }
+
+        public OthelloColor InitialColor => _discModel.InitialColor;
 
     }
 }

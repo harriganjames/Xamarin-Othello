@@ -7,24 +7,27 @@ namespace Othello.Main.ViewModel
 {
     public class CellViewModel : ViewModelBase
     {
-        public CellViewModel()
-        {
+        CellModel _cellModel;
 
+        public void Initialize(CellModel cellModel)
+        {
+            _cellModel = cellModel; ;
         }
 
-        public void Initialize(CellModel cell)
+        DiscViewModel _disc;
+        public DiscViewModel Disc
         {
-            Cell = cell;
+            get
+            {
+                return _disc;
+            }
+            set
+            {
+                SetValue(ref _disc, value, () => Disc);
+            }
         }
 
-        public CellStateEnum CellState
-        {
-            get { return Cell.State; }
-        }
-
-        public bool InUse => CellState != CellStateEnum.Empty;
-
-        public CellModel Cell { get; private set; }
+        public CellModel Model => _cellModel;
 
         private bool _isPending;
 
@@ -34,7 +37,6 @@ namespace Othello.Main.ViewModel
             set
             {
                 SetValue(ref _isPending, value, () => IsPending);
-                NotifyPropertyChanged(() => InUse);
             }
         }
 
@@ -46,28 +48,7 @@ namespace Othello.Main.ViewModel
             set
             {
                 SetValue(ref _isPlaying, value, () => IsPlaying);
-                NotifyPropertyChanged(() => InUse);
             }
-        }
-
-        private Rectangle _location;
-        public Rectangle Location
-        {
-            get { return _location; }
-            set
-            {
-                if (_location != value)
-                {
-                    _location = value;
-                    NotifyPropertyChanged();
-                }
-            }
-        }
-
-
-        public void NotifyChanged()
-        {
-            NotifyAllPropertiesChanged();
         }
 
     }

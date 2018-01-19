@@ -10,32 +10,41 @@ namespace Othello.Main.ViewModel
     public class BoardViewModel : ViewModelBase
     {
         readonly CellViewModelFactory _cellViewModelFactory;
+        readonly DiscViewModelFactory _discViewModelFactory;
 
-        Action<CellViewModel> _cellClickAction;
+        Dictionary<CellModel, CellViewModel> _cellLookup;
+        Dictionary<DiscModel, DiscViewModel> _discLookup;
 
-        public BoardViewModel(CellViewModelFactory cellViewModelFactory)
+        Action<CellModel> _cellClickAction;
+
+        public BoardViewModel(CellViewModelFactory cellViewModelFactory, DiscViewModelFactory discViewModelFactory)
         {
             _cellViewModelFactory = cellViewModelFactory;
+            _discViewModelFactory = discViewModelFactory;
 
-            Cells = new ObservableCollectionSafe<CellViewModel>();
             CellTappedCommand = AddNewCommand(new Command(OnCellTapped));
         }
 
 
-        public void Initialize(int rows, int columns, Action<CellViewModel> cellClickAction)
+        public void Initialize(IEnumerable<CellModel> cells, IEnumerable<DiscModel> discs, Action<CellModel> cellClickAction)
         {
-            Rows = rows;
-            Columns = columns;
-            CellSpacing = 6.0;
-            _cellClickAction = cellClickAction;
-            for (int row = 0; row < rows; row++)
+            Cells = new ObservableCollectionSafe<CellViewModel>();
+            Discs = new ObservableCollectionSafe<DiscViewModel>();
+            _cellLookup = new Dictionary<CellModel, CellViewModel>();
+            _discLookup = new Dictionary<DiscModel, DiscViewModel>();
+            foreach (var cell in cells)
             {
-                for (int column = 0; column < columns; column++)
-                {
-                    var model = new CellModel(column, row);
-                    Cells.Add(_cellViewModelFactory.Create(model));
-                }
+                var vm = _cellViewModelFactory.Create(cell);
+                Cells.Add(vm);
+                _cellLookup.Add(cell, vm);
             }
+            foreach (var disc in discs)
+            {
+                var vm = _discViewModelFactory.Create(disc);
+                Discs.Add(vm);
+                _discLookup.Add(disc, vm);
+            }
+            _cellClickAction = cellClickAction;
         }
 
         public Command CellTappedCommand { get; private set; }
@@ -43,20 +52,7 @@ namespace Othello.Main.ViewModel
         public int Rows { get; private set; }
         public int Columns { get; private set; }
         public ObservableCollectionSafe<CellViewModel> Cells { get; set; }
-        public double CellSpacing { get; set; }
-
-        private PlaySetModel _playSet;
-
-        public PlaySetModel PlaySet
-        {
-            get { return _playSet; }
-            set
-            {
-                _playSet = value;
-                NotifyPropertyChanged();
-            }
-        }
-
+        public ObservableCollectionSafe<DiscViewModel> Discs { get; set; }
 
         void OnCellTapped(object param)
         {
@@ -64,29 +60,55 @@ namespace Othello.Main.ViewModel
             if (cell == null)
                 return;
 
-            _cellClickAction?.Invoke(cell);
+            _cellClickAction?.Invoke(cell.Model);
         }
 
-        public void UpdateBoard(List<CellTransitionModel> cells, bool isPending)
+        public void UpdateBoard(PlaySetModel playSet)
         {
-            bool isPlayingSet = false;
-            foreach (var cell in cells)
+            foreach (var disc in playSet.Discs)
             {
-                var vm = GetCellViewModel(cell.Cell);
-                if (!isPlayingSet)
+                var discvm = GetDiscViewModel(disc);
+                discvm.DiscColor = disc.DiscColor;
+            }
+            foreach (var cell in playSet.Cells)
+            {
+                var cellvm = GetCellViewModel(cell);
+                DiscViewModel discvm = null;
+                cellvm.IsPlaying = cell.IsPlaying;
+                cellvm.IsPending = cell.IsPending;
+                if (cell.Disc == null)
                 {
-                    vm.IsPlaying = isPending;
-                    isPlayingSet = true;
+                    // move disc from cell to stack
+                    discvm = cellvm.Disc;
+                    if (discvm != null)
+                    {
+                        discvm.InUse = false;
+                    }
+                    discvm = null;
                 }
                 else
-                    vm.IsPending = isPending;
-                vm.NotifyChanged();
+                {
+                    // move disc from stack to cell
+                    discvm = GetDiscViewModel(cell.Disc);
+                    discvm.InUse = true;
+                }
+                cellvm.Disc = discvm;
             }
         }
 
         CellViewModel GetCellViewModel(CellModel cell)
         {
-            return Cells[8 * cell.Row + cell.Column];
+            CellViewModel vm;
+            _cellLookup.TryGetValue(cell, out vm);
+            return vm;
         }
+
+        DiscViewModel GetDiscViewModel(DiscModel disc)
+        {
+            DiscViewModel vm;
+            _discLookup.TryGetValue(disc, out vm);
+            return vm;
+        }
+
     }
 }

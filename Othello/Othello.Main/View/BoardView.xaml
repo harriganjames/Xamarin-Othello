@@ -7,27 +7,27 @@
   <ContentView.Content>
         <control:OthelloBoardControl x:Name="board"
                                      CellItemsSource="{Binding Cells}"
+                                     DiscItemsSource="{Binding Discs}"
                                      CellTappedCommand="{Binding CellTappedCommand}"
                                      BoardBackgroundColor="DarkGreen"                            
                                      HorizontalOptions="Fill"
                                      VerticalOptions="Fill"
                                      Margin="3"
                                      >
-            <!--<control:OthelloBoardControl.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <ContentView>
-                            <ContentView.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={x:Reference board}, Path=BindingContext.CellTappedCommand}"
-                                                  CommandParameter="{Binding}"/>
-                            </ContentView.GestureRecognizers>
-                            <view:CellView VerticalOptions="Fill"
-                               HorizontalOptions="Fill"
-                               />
-                        </ContentView>
-                    </ViewCell>
-                </DataTemplate>
-            </control:OthelloBoardControl.ItemTemplate>-->
+            <control:OthelloBoardControl.Resources>
+                <ResourceDictionary>
+                    <Style TargetType="view:CellView">
+                        <Setter Property="IsPlaying" Value="{Binding IsPlaying}"/>
+                        <Setter Property="IsPending" Value="{Binding IsPending}"/>
+                        <Setter Property="Disc" Value="{Binding Disc}"/>
+                    </Style>
+                    <Style TargetType="view:DiscView">
+                        <Setter Property="InUse" Value="{Binding InUse}"/>
+                        <Setter Property="DiscColor" Value="{Binding DiscColor}"/>
+                        <Setter Property="InitialColor" Value="{Binding InitialColor}"/>
+                    </Style>
+                </ResourceDictionary>
+            </control:OthelloBoardControl.Resources>
         </control:OthelloBoardControl>
     </ContentView.Content>
 </ContentView>

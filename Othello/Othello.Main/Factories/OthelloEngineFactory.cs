@@ -14,10 +14,10 @@ namespace Othello.Main.Factories
             _creator = creator;
         }
 
-        public OthelloEngine Create(IEnumerable<CellModel> cells)
+        public OthelloEngine Create()
         {
             var vm = _creator();
-            vm.Initialize(cells);
+            vm.Initialize();
             return vm;
         }
 

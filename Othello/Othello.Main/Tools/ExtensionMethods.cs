@@ -28,5 +28,12 @@ namespace Othello.Main.Tools
                 state = CellStateEnum.Empty;
             return state;
         }
+
+        static public OthelloColor GetOpposite(this OthelloColor color)
+        {
+            if (color == OthelloColor.White)
+                return OthelloColor.Black;
+            return OthelloColor.White;
+        }
     }
 }

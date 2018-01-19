@@ -17,24 +17,35 @@
             <conv:CellStateToBoolConverter x:Key="CellStateToBoolConverter"/>
             <conv:DiscStateToBoolConverter x:Key="DiscStateToBoolConverter"/>
             <conv:ReverseBoolConverter x:Key="ReverseBoolConverter"/>
+            <conv:OthelloColorToColorConverter x:Key="OthelloColorToColorConverter"/>
 
-            <Style TargetType="view:Disc2View">
+            <Style TargetType="view:DiscView">
                 <Setter Property="ControlTemplate">
                     <Setter.Value>
                         <ControlTemplate>
                             <Grid>
-                                <!--<Grid x:Name="flatGrid" IsVisible="{TemplateBinding InUse, Converter={StaticResource ReverseBoolConverter}}" RowSpacing="0">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <BoxView Grid.Row="0" Color="White"/>
-                                    <BoxView Grid.Row="1" Color="Black"/>
-                                </Grid>-->
+                                <Grid x:Name="flatGrid" IsVisible="{TemplateBinding InUse, Converter={StaticResource ReverseBoolConverter}}" RowSpacing="0">
+                                    <Grid IsVisible="{TemplateBinding IsVertical, Converter={StaticResource ReverseBoolConverter}}" RowSpacing="0">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <BoxView Grid.Row="0" Color="White"/>
+                                        <BoxView Grid.Row="1" Color="Black"/>
+                                    </Grid>
+                                    <Grid IsVisible="{TemplateBinding IsVertical}" ColumnSpacing="0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <BoxView Grid.Column="0" Color="White"/>
+                                        <BoxView Grid.Column="1" Color="Black"/>
+                                    </Grid>
+                                </Grid>
                                 <Grid IsVisible="{TemplateBinding InUse}">
-                                    <custom:EllipseView Color="{TemplateBinding TransitionedState, Converter={StaticResource CellStateToColorConverter}, ConverterParameter=reverse}"
+                                    <custom:EllipseView Color="{TemplateBinding ActualColor, Converter={StaticResource OthelloColorToColorConverter}, ConverterParameter=reverse}"
                                                     Margin="1"/>
-                                    <custom:EllipseView Color="{TemplateBinding TransitionedState, Converter={StaticResource CellStateToColorConverter}}"
+                                    <custom:EllipseView Color="{TemplateBinding ActualColor, Converter={StaticResource OthelloColorToColorConverter}}"
                                                     Margin="2"/>
                                 </Grid>
                             </Grid>
@@ -42,6 +53,33 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+
+
+            <Style TargetType="view:CellView">
+                <Setter Property="ControlTemplate">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Grid>
+                                <BoxView Color="LightGreen">
+                                    <BoxView.Triggers>
+                                        <DataTrigger TargetType="BoxView"
+                                                     Binding="{TemplateBinding IsPending}"
+                                                     Value="True">  
+                                            <Setter Property="Color" Value="Yellow"/>
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="BoxView"
+                                                     Binding="{TemplateBinding IsPlaying}"
+                                                     Value="True">          
+                                            <Setter Property="Color" Value="Orange"/>
+                                        </DataTrigger>
+                                    </BoxView.Triggers>
+                                </BoxView>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
 
         </ResourceDictionary>
 

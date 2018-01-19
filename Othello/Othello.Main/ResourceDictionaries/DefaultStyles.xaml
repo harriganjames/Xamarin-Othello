@@ -4,7 +4,7 @@
              xmlns:custom="clr-namespace:Aub.Xamarin.Toolkit.CustomViews;assembly=Aub.Xamarin.Toolkit"
              xmlns:view="clr-namespace:Othello.Main.View"
              x:Class="Othello.Main.ResourceDictionaries.DefaultStyles">
-    <!--<Style TargetType="view:Disc2View">
+    <!--<Style TargetType="view:DiscView">
         <Setter Property="ControlTemplate">
             <Setter.Value>
                 <ControlTemplate>

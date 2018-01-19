@@ -6,7 +6,6 @@
   <ContentView.Content>
     <Grid>
         <view:GameView BindingContext="{Binding Game}"/>
-            <!--<view:TestView/>-->
-        </Grid>
+    </Grid>
   </ContentView.Content>
 </ContentView>

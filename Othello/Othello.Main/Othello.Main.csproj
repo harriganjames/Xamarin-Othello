@@ -20,12 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="View\OldBoardView.xaml.cs">
-      <DependentUpon>OldBoardView.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="View\DiscView.xaml.cs">
-      <DependentUpon>DiscView.xaml</DependentUpon>
-    </Compile>
     <Compile Update="View\TestView.xaml.cs">
       <DependentUpon>TestView.xaml</DependentUpon>
     </Compile>

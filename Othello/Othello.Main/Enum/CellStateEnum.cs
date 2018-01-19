@@ -1,7 +1,8 @@
 ﻿namespace Othello.Main.Enum
 {
-    public enum DiscColor
+    public enum OthelloColor
     {
+        None = 0,
         White = 1,
         Black = 2
     }
@@ -9,8 +10,8 @@
     public enum DiscStateEnum
     {
         Stacked=0,
-        White=DiscColor.White,
-        Black=DiscColor.Black
+        White=OthelloColor.White,
+        Black=OthelloColor.Black
     }
 
     public enum CellStateEnum
