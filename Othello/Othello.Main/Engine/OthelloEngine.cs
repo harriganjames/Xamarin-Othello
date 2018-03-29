@@ -3,6 +3,9 @@ using Othello.Main.Model;
 using System.Linq;
 using System.Collections.Generic;
 using Othello.Main.Tools;
+using System;
+using Xamarin.Forms;
+using System.Diagnostics;
 
 namespace Othello.Main.Engine
 {
@@ -11,6 +14,7 @@ namespace Othello.Main.Engine
         CellModel[] _board;
         List<DiscModel> _discs;
         PlaySetModel _playSet;
+        GameOptions _gameOptions;
 
         public OthelloEngine()
         {
@@ -43,6 +47,8 @@ namespace Othello.Main.Engine
                 }
                 _discs.Add(disc);
             }
+
+            GameState = GameStateEnum.NotStarted;
         }
 
         public OthelloColor Turn { get; private set; }
@@ -51,12 +57,18 @@ namespace Othello.Main.Engine
         public int BlackPoints { get; private set; }
         public int WhitePointsPending { get; private set; }
         public int BlackPointsPending { get; private set; }
-        public bool IsPlaying { get; private set; }
+        //public bool IsPlaying { get; private set; }
+        public GameStateEnum GameState { get; private set; }
 
         public PlaySetModel PlaySet => _playSet;
 
         public IEnumerable<CellModel> Cells => _board;
         public IEnumerable<DiscModel> Discs => _discs;
+
+        //public object Debug { get; private set; }
+
+        public event EventHandler DevicePlayed;
+        public event EventHandler DeviceConfirmed;
 
         public void Reset()
         {
@@ -75,8 +87,15 @@ namespace Othello.Main.Engine
         }
 
 
-        public void NewGame()
+        public void NewGame(GameOptions gameOptions)
         {
+            _gameOptions = gameOptions;
+
+            foreach (var cell in Cells.Where(c=>c.Disc!=null))
+            {
+                MoveDiscFromCell(cell);
+            }
+
             MoveNextDiscToCell(OthelloColor.White, GetCell(3, 3));
             MoveNextDiscToCell(OthelloColor.Black, GetCell(3, 4));
             MoveNextDiscToCell(OthelloColor.Black, GetCell(4, 3));
@@ -87,15 +106,33 @@ namespace Othello.Main.Engine
             BlackPoints = 2;
             WhitePointsPending = 0;
             BlackPointsPending = 0;
+            //IsPlaying = false;
+
+            GameState = GameStateEnum.WaitingPlayerPlay;
         }
 
-        public bool PlayCell(CellModel playCell)
+        public bool PlayerPlayCell(CellModel playCell)
         {
-            if (playCell.Disc!=null)
+            //if (GameState == GameStateEnum.WaitingDevice && Turn == OthelloColor.Black)
+            //{
+            //    DevicePlay();
+            //    return true;
+            //}
+
+
+
+            if (playCell.Disc != null)
                 return false;
 
-            if (IsPlaying)
+            if (GameState != GameStateEnum.WaitingPlayerPlay)
                 return false;
+
+            return PlayCell(playCell);
+        }
+
+        bool PlayCell(CellModel playCell)
+        {
+            PrintCells("PlayCell.Start");
 
             var acs = GetAdjacentCells(playCell);
 
@@ -122,13 +159,20 @@ namespace Othello.Main.Engine
                     DecrementPendingPoints(Turn.GetOpposite());
                 }
             }
-            Turn = Turn.GetOpposite();
-            IsPlaying = true;
+            //IsPlaying = true;
+            if(Turn==OthelloColor.White || !_gameOptions.IsSinglePlayer)
+                GameState = GameStateEnum.WaitingPlayerConfirm;
+
+            PrintCells("PlayCell.End");
+
             return true;
         }
 
         public void Confirm()
         {
+            if (GameState != GameStateEnum.WaitingPlayerConfirm && GameState!=GameStateEnum.WaitingDevice)
+                return;
+
             foreach (var cell in _playSet.Cells)
             {
                 cell.IsPending = false;
@@ -136,8 +180,21 @@ namespace Othello.Main.Engine
             }
             WhitePoints += WhitePointsPending;
             BlackPoints += BlackPointsPending;
+            Turn = Turn.GetOpposite();
             ResetPendingPoints();
-            IsPlaying = false;
+            //IsPlaying = false;
+            if (!IsPlayPossible(Turn))
+                GameState = GameStateEnum.GameOver;
+            else if (_gameOptions.IsSinglePlayer && Turn==OthelloColor.Black)
+            {
+                GameState = GameStateEnum.WaitingDevice;
+                Device.StartTimer(TimeSpan.FromMilliseconds(1000), DevicePlayCallback);
+            }
+            else
+                GameState = GameStateEnum.WaitingPlayerPlay;
+
+            PrintCells("Confirm.End");
+
         }
 
         public void UndoLastSequence()
@@ -156,8 +213,90 @@ namespace Othello.Main.Engine
                 cell.IsPlaying = false;
             }
             ResetPendingPoints();
-            Turn = Turn.GetOpposite();
-            IsPlaying = false;
+            //Turn = Turn.GetOpposite();
+            //IsPlaying = false;
+            GameState = GameStateEnum.WaitingPlayerPlay;
+
+            PrintCells("Undo.End");
+        }
+
+
+        bool DevicePlayCallback()
+        {
+            DevicePlay();
+            DevicePlayed?.Invoke(this, new EventArgs());
+            return false;
+        }
+        void DevicePlay()
+        {
+            var cellRatings = GetPlayableCells(Turn);
+
+            var cr = cellRatings.OrderByDescending(r => r.Points).FirstOrDefault();
+
+            PlayCell(cr.Cell);
+
+            Device.StartTimer(TimeSpan.FromSeconds(3), DeviceConfirmCallBack);
+        }
+
+
+        bool DeviceConfirmCallBack()
+        {
+            Confirm();
+            DeviceConfirmed?.Invoke(this, new EventArgs());
+            return false;
+        }
+
+
+
+        bool IsPlayPossible(OthelloColor color)
+        {
+            foreach (var cell in _board.Where(c=>c.Disc==null))
+            {
+                var acs = GetAdjacentCells(cell);
+
+                var starts = acs.Where(c => c.Disc != null && c.Disc.DiscColor == color.GetOpposite()).ToList();
+
+                if (!starts.Any())
+                    continue;
+
+                var spokes = GetSpokes(cell, starts);
+                if (spokes.Any())
+                    return true;
+
+            }
+            return false;
+        }
+
+        List<CellRatingModel> GetPlayableCells(OthelloColor color)
+        {
+            // new class e.g. CellRating?
+            var cells = new List<CellRatingModel>();
+
+            foreach (var cell in _board.Where(c => c.Disc == null))
+            {
+                var acs = GetAdjacentCells(cell);
+
+                var starts = acs.Where(c => c.Disc != null && c.Disc.DiscColor == color.GetOpposite()).ToList();
+
+                if (!starts.Any())
+                    continue;
+
+                var spokes = GetSpokes(cell, starts);
+                if (!spokes.Any())
+                    continue;
+
+                // get zone
+                // get points - (length of spokes * 2) + 1 ?
+
+                var points = spokes.Sum(s => s.Count * 2) + 1;
+
+                var cr = new CellRatingModel() { Cell = cell, Points = points };
+
+                cells.Add(cr);
+
+            }
+            return cells;
+
         }
 
         void FlipCellDisc(CellModel cell)
@@ -198,6 +337,8 @@ namespace Othello.Main.Engine
             cell.Disc.DiscColor = cell.Disc.InitialColor;
             cell.Disc.Cell = null;
             cell.Disc = null;
+            cell.IsPending = false;
+            cell.IsPlaying = false;
         }
 
 
@@ -272,7 +413,7 @@ namespace Othello.Main.Engine
                     if (col >= 8 || row >= 8 || col<0 || row<0)
                         break;
                     var incCell = GetCell(col, row);
-                    if (incCell.State == CellStateEnum.Empty)
+                    if (incCell.Disc == null)
                         break;
                     if (incCell.Disc.DiscColor==Turn)
                     {
@@ -286,6 +427,18 @@ namespace Othello.Main.Engine
             }
             return spokes;
         }
+
+        void PrintCells(string prefix)
+        {
+            foreach (var cell in _board)
+            {
+                if(cell.Disc!=null)
+                {
+                    Debug.WriteLine($"{prefix} - Cell {cell}");
+                }
+            }
+        }
+
 
     }
 }

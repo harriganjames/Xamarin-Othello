@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:behavior="clr-namespace:Aub.Xamarin.Toolkit.Behavior;assembly=Aub.Xamarin.Toolkit"
+             xmlns:control="clr-namespace:Aub.Xamarin.Toolkit.Control;assembly=Aub.Xamarin.Toolkit"
+             xmlns:enum="clr-namespace:Othello.Main.Enum"
+             xmlns:conv="clr-namespace:Othello.Main.Converters"
+             x:Class="Othello.Main.View.NewGameView">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <conv:PlayerModeToBoolConverter x:Key="PlayerModeToBoolConverter"/>
+            <Color x:Key="BackgroundColor">Linen</Color>
+        </ResourceDictionary>
+    </ContentView.Resources>
+    <ContentView.Content>
+        <Grid BackgroundColor="{StaticResource BackgroundColor}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Text="Mode"
+                       FontSize="Large"
+                       TextColor="DarkBlue"
+                       Margin="10"
+                       VerticalOptions="Center"/>
+
+                <StackLayout Grid.Column="2"
+                             Margin="10"
+                             Spacing="15"
+                             Orientation="Vertical">
+                    <StackLayout.Resources>
+                        <ResourceDictionary>
+                            <Style x:Key="baseStyle" TargetType="Label">
+                                <Setter Property="TextColor" Value="DarkBlue" />
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                <Setter Property="FontSize" Value="Large" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                                <Setter Property="VerticalTextAlignment" Value="Center" />
+                            </Style>
+                            <!-- Implicit style -->
+                            <Style TargetType="Label" BasedOn="{StaticResource baseStyle}" />
+
+                            <Style x:Key="frameBaseStyle" TargetType="Frame">
+                                <Setter Property="BackgroundColor" Value="Transparent" />
+                                <Setter Property="HasShadow" Value="False"/>
+                            </Style>
+                            <Style x:Key="radioOuterFrameBaseStyle" TargetType="Frame" BasedOn="{StaticResource frameBaseStyle}">
+                                <Setter Property="CornerRadius" Value="6" />
+                                <Setter Property="Padding" Value="3" />
+                            </Style>
+                            <Style x:Key="radioInnerFrameBaseStyle" TargetType="Frame" BasedOn="{StaticResource frameBaseStyle}">
+                                <Setter Property="CornerRadius" Value="4" />
+                                <Setter Property="Padding" Value="10,3" />
+                                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}"/>
+                            </Style>
+                            <Style x:Key="radioOuterFrameSelectedStyle" TargetType="Frame" BasedOn="{StaticResource radioOuterFrameBaseStyle}">
+                                <Setter Property="BackgroundColor" Value="Orange" />
+                            </Style>
+                        </ResourceDictionary>
+
+                    </StackLayout.Resources>
+
+                    <Frame Style="{StaticResource radioOuterFrameBaseStyle}">
+                        <Frame.Behaviors>
+                            <behavior:RadioBehavior x:Name="pvp"
+                                                    IsChecked="{Binding IsPlayerPlayer}"/>
+                        </Frame.Behaviors>
+                        <Frame.Triggers>
+                            <DataTrigger TargetType="Frame"
+                                         Binding="{Binding Source={x:Reference pvp},
+                                                   Path=IsChecked}"
+                                         Value="True">
+                                <Setter Property="Style" Value="{StaticResource radioOuterFrameSelectedStyle}" />
+                            </DataTrigger>
+                        </Frame.Triggers>
+                        <Frame Style="{StaticResource radioInnerFrameBaseStyle}">
+                            <Label Text="Player versus Player"/>
+                        </Frame>
+                    </Frame>
+                    <Frame Style="{StaticResource radioOuterFrameBaseStyle}">
+                        <Frame.Behaviors>
+                            <behavior:RadioBehavior x:Name="pvd"
+                                                    IsChecked="{Binding IsPlayerDevice}"/>
+                        </Frame.Behaviors>
+                        <Frame.Triggers>
+                            <DataTrigger TargetType="Frame"
+                                         Binding="{Binding Source={x:Reference pvd},
+                                                   Path=IsChecked}"
+                                         Value="True">
+                                <Setter Property="Style" Value="{StaticResource radioOuterFrameSelectedStyle}" />
+                            </DataTrigger>
+                        </Frame.Triggers>
+                        <Frame Style="{StaticResource radioInnerFrameBaseStyle}">
+                            <Label Text="Player versus Device"/>
+                        </Frame>
+                    </Frame>
+                </StackLayout>
+
+            </Grid>
+
+
+            <Button Grid.Row="1"
+                    Margin="10"
+                    TextColor="DarkBlue"
+                    BorderColor="Red"
+                    BorderWidth="3"
+                    BorderRadius="15"
+                    Text="Start Game"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    Command="{Binding StartNewGameCommand}"/>
+
+        </Grid>
+    </ContentView.Content>
+</ContentView>

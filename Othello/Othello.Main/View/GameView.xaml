@@ -8,61 +8,92 @@
              x:Name="this"
              >
   <ContentView.Content>
-        <Grid>
+        <Grid RowSpacing="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="1*"/>
-                <RowDefinition Height="10*"/>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
             <Grid BackgroundColor="LightGray"
                   ColumnSpacing="0"
                   Padding="4">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="150"/>
                 </Grid.ColumnDefinitions>
                 <Grid.Resources>
                     <ResourceDictionary>
                         <Style TargetType="Label">
-                            <Setter Property="FontSize" Value="30"/>
+                            <Setter Property="FontSize" Value="25"/>
                             <Setter Property="HorizontalTextAlignment" Value="Center"/>
                             <Setter Property="VerticalTextAlignment" Value="Center"/>
                         </Style>
                     </ResourceDictionary>
                 </Grid.Resources>
 
-                <Grid Grid.Column="0">
-                    <BoxView Color="White"/>
+                <Frame Grid.Column="0"
+                       CornerRadius="6"
+                       BackgroundColor="White"
+                       Padding="0">
                     <Label Text="{Binding WhiteScore}"
-                           TextColor="Black"
-                           />
-                </Grid>
+                        TextColor="Black"
+                        />
+                </Frame>
 
-                <Grid Grid.Column="1"
-                      Margin="5">
-                    <Grid IsVisible="{Binding IsPending}">
-                        <Button Grid.Column="0" Text="Confirm" Command="{Binding ConfirmCommand}"/>
-                        <Button Grid.Column="1" Text="Undo" Command="{Binding UndoCommand}"/>
-                    </Grid>
-                    <Grid IsVisible="{Binding IsPending, Converter={StaticResource ReverseBoolConverter}}">
-                        <Grid IsVisible="{Binding Turn, Converter={StaticResource CellStateToBoolConverter},ConverterParameter={x:Static enum:CellStateEnum.White}}">
-                            <BoxView Color="White"/>
-                            <Label Text="White Turn" TextColor="DarkGray"/>
+                <Frame Grid.Column="1"
+                       Margin="4,0"
+                       CornerRadius="6"
+                       Padding="0">
+                    <Grid ColumnSpacing="0" RowSpacing="0">
+                        <!--Waiting Player Confirm-->
+                        <Grid IsVisible="{Binding GameState, Converter={StaticResource GameStateToBoolConverter}, ConverterParameter={x:Static enum:GameStateEnum.WaitingPlayerConfirm}}"
+                              ColumnSpacing="0"
+                              IsEnabled="{Binding Board.IsAnimating, Converter={StaticResource ReverseBoolConverter}}"
+                              BackgroundColor="DarkGreen">
+                            <Button Grid.Column="0"
+                                    Margin="0,-2,-2,-2"
+                                    Text="Confirm"
+                                    BackgroundColor="LightGreen"
+                                    Command="{Binding ConfirmCommand}" />
+                            <Button Grid.Column="1"
+                                    Margin="-2,-2,0,-2"
+                                    Text="Undo" 
+                                    BackgroundColor="LightGreen"
+                                    Command="{Binding UndoCommand}"/>
                         </Grid>
-                        <Grid IsVisible="{Binding Turn, Converter={StaticResource CellStateToBoolConverter},ConverterParameter={x:Static enum:CellStateEnum.Black}}">
-                            <BoxView Color="Black"/>
-                            <Label Text="Black Turn" TextColor="LightGray"/>
+                        <!--Waiting Player Play-->
+                        <Grid IsVisible="{Binding GameState, Converter={StaticResource GameStateToBoolConverter}, ConverterParameter={x:Static enum:GameStateEnum.WaitingPlayerPlay}}">
+                            <Grid IsVisible="{Binding Turn, Converter={StaticResource CellStateToBoolConverter},ConverterParameter={x:Static enum:CellStateEnum.White}}">
+                                <BoxView Color="White"/>
+                                <Label Text="White Turn" TextColor="DarkGreen" HorizontalOptions="CenterAndExpand"/>
+                            </Grid>
+                            <Grid IsVisible="{Binding Turn, Converter={StaticResource CellStateToBoolConverter},ConverterParameter={x:Static enum:CellStateEnum.Black}}">
+                                <BoxView Color="Black"/>
+                                <Label Text="Black Turn" TextColor="LightGreen" HorizontalOptions="CenterAndExpand"/>
+                            </Grid>
+                        </Grid>
+                        <!--Game Over-->
+                        <Grid IsVisible="{Binding GameState, Converter={StaticResource GameStateToBoolConverter}, ConverterParameter={x:Static enum:GameStateEnum.GameOver}}"
+                                  BackgroundColor="Yellow">
+                            <Label Text="{Binding GameOverText}" TextColor="Black"/>
+                        </Grid>
+                        <!--Waiting Device-->
+                        <Grid IsVisible="{Binding GameState, Converter={StaticResource GameStateToBoolConverter}, ConverterParameter={x:Static enum:GameStateEnum.WaitingDevice}}"
+                              BackgroundColor="Orange">
+                            <Label Text="Device Playing ..." TextColor="Black"/>
                         </Grid>
                     </Grid>
-                </Grid>
+                </Frame>
 
-                <Grid Grid.Column="2">
-                    <BoxView Color="Black"/>
+                <Frame Grid.Column="2"
+                       CornerRadius="6"
+                       BackgroundColor="Black"
+                       Padding="0">
                     <Label Text="{Binding BlackScore}"
                            TextColor="White"
                            />
-                </Grid>
+                </Frame>
 
             </Grid>
             <view:BoardView Grid.Row="1"

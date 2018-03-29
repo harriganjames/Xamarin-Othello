@@ -7,6 +7,7 @@ using Othello.Main.Bootstrap;
 using Autofac;
 using Othello.Main.ViewModel;
 using Othello.Main.Factories;
+using Othello.Main.View;
 
 namespace Othello.Main
 {
@@ -18,17 +19,21 @@ namespace Othello.Main
         {
             InitializeComponent();
 
-            var x = this.Resources;
+            var page = new MainPageView();
+            var navPage = new NavigationPage(page);
 
-            _container = setup.CreateContainer();
+            _container = setup.CreateContainer(cb => {
+                cb.RegisterInstance(navPage as Page);
+            });
 
             _container.BeginLifetimeScope();
 
-            var page = new MainPage();
+            setup.RegisterViewModelMappings();
+
             var vm = _container.Resolve<MainViewModelFactory>().Create();
             page.BindingContext = vm;
 
-            MainPage = page;
+            MainPage = navPage;
         }
 
         protected override void OnStart()

@@ -7,6 +7,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 using Xamarin.Forms;
+using Aub.Xamarin.Toolkit.Service;
+using System;
 
 namespace Othello.Main.ViewModel
 {
@@ -15,6 +17,7 @@ namespace Othello.Main.ViewModel
         readonly BoardViewModelFactory _boardViewModelFactory;
         readonly OthelloEngineFactory _othelloEngineFactory;
 
+        GameOptions _gameOptions;
         OthelloEngine _othelloEngine;
 
         public GameViewModel(BoardViewModelFactory boardViewModelFactory,
@@ -23,7 +26,6 @@ namespace Othello.Main.ViewModel
             _boardViewModelFactory = boardViewModelFactory;
             _othelloEngineFactory = othelloEngineFactory;
 
-            NewGameCommand = AddNewCommand(new Command(OnNewGame));
             ConfirmCommand = AddNewCommand(new Command(OnConfirm));
             UndoCommand = AddNewCommand(new Command(OnUndo));
         }
@@ -34,11 +36,12 @@ namespace Othello.Main.ViewModel
             _othelloEngine = _othelloEngineFactory.Create();
             Board = _boardViewModelFactory.Create(_othelloEngine.Cells, _othelloEngine.Discs, OnCellClick);
 
-            OnNewGame();
+            _othelloEngine.DevicePlayed += OnDevicePlayed;
+            _othelloEngine.DeviceConfirmed += OnDeviceConfirmed;
+
+            NewGame(new GameOptions());
         }
 
-
-        public Command NewGameCommand { get; set; }
         public Command ConfirmCommand { get; set; }
         public Command UndoCommand { get; set; }
         public BoardViewModel Board { get; private set; }
@@ -77,35 +80,85 @@ namespace Othello.Main.ViewModel
             }
         }
 
-        private bool _isPending;
+        //private bool _isPending;
+        //public bool IsPending
+        //{
+        //    get { return _isPending; }
+        //    set
+        //    {
+        //        SetValue(ref _isPending, value, () => IsPending);
+        //    }
+        //}
 
-        public bool IsPending
+        private bool _isGameOver;
+        public bool IsGameOver
         {
-            get { return _isPending; }
+            get { return _isGameOver; }
             set
             {
-                SetValue(ref _isPending, value, () => IsPending);
+                SetValue(ref _isGameOver, value, () => IsGameOver);
+            }
+        }
+
+        public GameOptions GameOptions => _gameOptions;
+
+        private GameStateEnum _gameState;
+
+        public GameStateEnum GameState
+        {
+            get { return _gameState; }
+            set
+            {
+                SetValue(ref _gameState, value, () => GameState);
             }
         }
 
 
-        void OnNewGame()
+        private string _gameOverText;
+        public string GameOverText
         {
-            _othelloEngine.NewGame();
+            get { return _gameOverText; }
+            set
+            {
+                SetValue(ref _gameOverText, value, () => GameOverText);
+            }
+        }
+
+
+        public void NewGame(GameOptions gameOptions)
+        {
+            _gameOptions = gameOptions;
+            _othelloEngine.NewGame(gameOptions);
+            //GameState = _othelloEngine.GameState;
+            //IsPending = false;
             UpdateGame();
         }
 
         void OnConfirm()
         {
             _othelloEngine.Confirm();
-            IsPending = false;
+            //GameState = _othelloEngine.GameState;
+            //IsPending = false;
             UpdateGame();
+            //IsGameOver = _othelloEngine.IsGameOver;
         }
 
         void OnUndo()
         {
             _othelloEngine.UndoLastSequence();
-            IsPending = false;
+            //GameState = _othelloEngine.GameState;
+            //IsPending = false;
+            UpdateGame();
+        }
+
+
+        void OnDevicePlayed(object sender, EventArgs e)
+        {
+            UpdateGame();
+        }
+
+        void OnDeviceConfirmed(object sender, EventArgs e)
+        {
             UpdateGame();
         }
 
@@ -115,6 +168,41 @@ namespace Othello.Main.ViewModel
             WhiteScore = PointsToString(_othelloEngine.WhitePoints,_othelloEngine.WhitePointsPending);
             BlackScore = PointsToString(_othelloEngine.BlackPoints,_othelloEngine.BlackPointsPending);
             Turn = _othelloEngine.Turn;
+            GameState = _othelloEngine.GameState;
+            UpdateGameOverText();
+        }
+
+        void UpdateGameOverText()
+        {
+            if (GameState == GameStateEnum.GameOver)
+            {
+                var difference = Math.Abs(_othelloEngine.WhitePoints - _othelloEngine.BlackPoints);
+                string result;
+                if (difference == 0)
+                {
+                    result = "a draw!";
+                }
+                else
+                {
+                    var points_suffix = difference == 1 ? String.Empty : "s";
+                    string winner;
+                    if (_gameOptions.IsSinglePlayer)
+                    {
+                        if (Turn == OthelloColor.White)
+                            winner = "Player";
+                        else
+                            winner = "Device";
+                    }
+                    else
+                    {
+                        winner = Turn.ToString();
+                    }
+                    result = $"{winner} wins by {difference} point{points_suffix}!";
+                }
+                GameOverText = $"Game Over - {result}";
+            }
+            else
+                GameOverText = String.Empty;
         }
 
         string PointsToString(int points, int pendingPoints)
@@ -124,16 +212,17 @@ namespace Othello.Main.ViewModel
             if(pendingPoints!=0)
             {
                 sb.Append(pendingPoints < 0 ? " - " : " + ");
-                sb.Append(System.Math.Abs(pendingPoints).ToString());
+                sb.Append(Math.Abs(pendingPoints).ToString());
             }
             return sb.ToString();
         }
 
         void OnCellClick(CellModel cell)
         {
-            if (_othelloEngine.PlayCell(cell))
+            if (_othelloEngine.PlayerPlayCell(cell))
             {
-                IsPending = true;
+                GameState = _othelloEngine.GameState;
+                //IsPending = true;
                 UpdateGame();
             }
         }

@@ -21,5 +21,10 @@ namespace Othello.Main.Model
         {
             DiscColor = DiscColor.GetOpposite();
         }
+
+        public override string ToString()
+        {
+            return $"Color={DiscColor.ToString()}";
+        }
     }
 }

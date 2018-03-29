@@ -54,6 +54,16 @@ namespace Othello.Main.ViewModel
         public ObservableCollectionSafe<CellViewModel> Cells { get; set; }
         public ObservableCollectionSafe<DiscViewModel> Discs { get; set; }
 
+        private bool isAnimating;
+
+        public bool IsAnimating
+        {
+            get { return isAnimating; }
+            set { SetValue(ref isAnimating, value, () => IsAnimating); }
+        }
+
+
+
         void OnCellTapped(object param)
         {
             var cell = param as CellViewModel;

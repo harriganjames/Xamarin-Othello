@@ -32,5 +32,10 @@ namespace Othello.Main.ViewModel
 
         public OthelloColor InitialColor => _discModel.InitialColor;
 
+        public override string ToString()
+        {
+            return _discModel.ToString();
+        }
+
     }
 }

@@ -22,9 +22,23 @@
     <item name="windowActionModeOverlay">true</item>
 
     <item name="android:datePickerDialogTheme">@style/AppCompatDialogStyle</item>
+
+    <item name="android:buttonStyle">@style/MyButton</item>
+
+    <item name="android:colorActivatedHighlight">@android:color/transparent</item>
   </style>
 
   <style name="AppCompatDialogStyle" parent="Theme.AppCompat.Light.Dialog">
     <item name="colorAccent">#FF4081</item>
   </style>
+
+  <style name="Theme.Splash" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:windowBackground">@drawable/othello</item>
+    <item name="android:windowNoTitle">true</item>    
+  </style>
+
+  <style name="MyButton" parent="android:Widget.Material.Button">
+    <item name="android:layout_margin">0dip</item>
+  </style>
+  
 </resources>

@@ -51,6 +51,10 @@ namespace Othello.Main.ViewModel
             }
         }
 
+        public override string ToString()
+        {
+            return Model.ToString();
+        }
     }
 }
         

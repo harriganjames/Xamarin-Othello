@@ -17,16 +17,15 @@ namespace Othello.Main.Model
 
         public int Row { get; private set; }
         public int Column { get; private set; }
-        public CellStateEnum State
-        {
-            get
-            {
-                return Disc == null ? CellStateEnum.Empty : (CellStateEnum)Disc.DiscColor;
-            }
-        }
+        //public CellStateEnum State
+        //{
+        //    get
+        //    {
+        //        return Disc == null ? CellStateEnum.Empty : (CellStateEnum)Disc.DiscColor;
+        //    }
+        //}
         public DiscModel Disc { get; set; }
         public bool IsPending { get; set; }
-        //public bool IsPlaying { get; set; }
 
         private bool _isPlaying;
 
@@ -43,7 +42,8 @@ namespace Othello.Main.Model
 
         public override string ToString()
         {
-            return $"C={Column} R={Row} State={State.ToString()}";
+            var d = Disc == null ? "empty" : Disc.ToString();
+            return $"C={Column} R={Row} Disc={d}";
         }
     }
 }

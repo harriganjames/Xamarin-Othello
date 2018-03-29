@@ -9,6 +9,7 @@
                                      CellItemsSource="{Binding Cells}"
                                      DiscItemsSource="{Binding Discs}"
                                      CellTappedCommand="{Binding CellTappedCommand}"
+                                     IsAnimating="{Binding IsAnimating, Mode=OneWayToSource}"
                                      BoardBackgroundColor="DarkGreen"                            
                                      HorizontalOptions="Fill"
                                      VerticalOptions="Fill"

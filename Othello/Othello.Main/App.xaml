@@ -2,9 +2,11 @@
 <Application xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:conv="clr-namespace:Othello.Main.Converters"
+             xmlns:toolconv="clr-namespace:Aub.Xamarin.Toolkit.Converter;assembly=Aub.Xamarin.Toolkit"
              xmlns:res="clr-namespace:Othello.Main.ResourceDictionaries"
              xmlns:custom="clr-namespace:Aub.Xamarin.Toolkit.CustomViews;assembly=Aub.Xamarin.Toolkit"
              xmlns:view="clr-namespace:Othello.Main.View"
+             xmlns:viewmodel="clr-namespace:Othello.Main.ViewModel"
              x:Class="Othello.Main.App">
 	<Application.Resources>
         <!--<ResourceDictionary.MergedDictionaries>
@@ -15,16 +17,27 @@
             <conv:CellStateToColorConverter x:Key="CellStateToColorConverter"/>
             <conv:DoubleAdditionConverter x:Key="DoubleAdditionConverter"/>
             <conv:CellStateToBoolConverter x:Key="CellStateToBoolConverter"/>
-            <conv:DiscStateToBoolConverter x:Key="DiscStateToBoolConverter"/>
             <conv:ReverseBoolConverter x:Key="ReverseBoolConverter"/>
             <conv:OthelloColorToColorConverter x:Key="OthelloColorToColorConverter"/>
+            <conv:GameStateToBoolConverter x:Key="GameStateToBoolConverter"/>
+            <conv:GameStateToReverseBoolConverter x:Key="GameStateToReverseBoolConverter"/>
+            <toolconv:ObjectCompareConverter x:Key="ObjectCompareConverter"/>
 
+            <DataTemplate x:Key="abc">
+                <x:Arguments>
+                    <x:Type>viewmodel:TestViewModel</x:Type>
+                </x:Arguments>
+                <ViewCell>
+                    <view:TestView/>
+                </ViewCell>
+            </DataTemplate>
+            
             <Style TargetType="view:DiscView">
                 <Setter Property="ControlTemplate">
                     <Setter.Value>
                         <ControlTemplate>
                             <Grid>
-                                <Grid x:Name="flatGrid" IsVisible="{TemplateBinding InUse, Converter={StaticResource ReverseBoolConverter}}" RowSpacing="0">
+                                <Grid x:Name="flatGrid" IsVisible="{TemplateBinding IsFlat}" RowSpacing="0">
                                     <Grid IsVisible="{TemplateBinding IsVertical, Converter={StaticResource ReverseBoolConverter}}" RowSpacing="0">
                                         <Grid.RowDefinitions>
                                             <RowDefinition/>
@@ -42,7 +55,7 @@
                                         <BoxView Grid.Column="1" Color="Black"/>
                                     </Grid>
                                 </Grid>
-                                <Grid IsVisible="{TemplateBinding InUse}">
+                                <Grid IsVisible="{TemplateBinding IsFlat, Converter={StaticResource ReverseBoolConverter}}">
                                     <custom:EllipseView Color="{TemplateBinding ActualColor, Converter={StaticResource OthelloColorToColorConverter}, ConverterParameter=reverse}"
                                                     Margin="1"/>
                                     <custom:EllipseView Color="{TemplateBinding ActualColor, Converter={StaticResource OthelloColorToColorConverter}}"
