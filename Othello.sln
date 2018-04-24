@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Othello.Android", "Othello\Othello.Android\Othello.Android.csproj", "{BF1E33B2-714F-4244-9107-C56ABD770A1E}"
 EndProject
@@ -160,5 +160,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {60C10316-3879-4DC5-9A3A-A5AE1F9399E3}
 	EndGlobalSection
 EndGlobal

@@ -24,6 +24,7 @@ namespace Othello.Main
 
             _container = setup.CreateContainer(cb => {
                 cb.RegisterInstance(navPage as Page);
+                cb.RegisterInstance(this as Application);
             });
 
             _container.BeginLifetimeScope();

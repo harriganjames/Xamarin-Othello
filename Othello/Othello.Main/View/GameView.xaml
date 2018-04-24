@@ -7,6 +7,17 @@
              x:Class="Othello.Main.View.GameView"
              x:Name="this"
              >
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Grid">
+                <Setter Property="ColumnSpacing" Value="0"/>
+                <Setter Property="RowSpacing" Value="0"/>
+            </Style>
+            <Style TargetType="Frame">
+                <Setter Property="Padding" Value="0"/>
+            </Style>
+        </ResourceDictionary>
+    </ContentView.Resources>
   <ContentView.Content>
         <Grid RowSpacing="0">
             <Grid.RowDefinitions>
@@ -37,30 +48,44 @@
                        BackgroundColor="White"
                        Padding="0">
                     <Label Text="{Binding WhiteScore}"
-                        TextColor="Black"
-                        />
+                           TextColor="Black"/>
                 </Frame>
 
                 <Frame Grid.Column="1"
                        Margin="4,0"
                        CornerRadius="6"
                        Padding="0">
-                    <Grid ColumnSpacing="0" RowSpacing="0">
+                    <Grid ColumnSpacing="0" RowSpacing="0" BackgroundColor="Orange">
                         <!--Waiting Player Confirm-->
                         <Grid IsVisible="{Binding GameState, Converter={StaticResource GameStateToBoolConverter}, ConverterParameter={x:Static enum:GameStateEnum.WaitingPlayerConfirm}}"
                               ColumnSpacing="0"
+                              RowSpacing="0"
+                              Padding="0"
+                              Margin="0"
                               IsEnabled="{Binding Board.IsAnimating, Converter={StaticResource ReverseBoolConverter}}"
                               BackgroundColor="DarkGreen">
-                            <Button Grid.Column="0"
-                                    Margin="0,-2,-2,-2"
-                                    Text="Confirm"
+                            <Frame  Grid.Column="0"
                                     BackgroundColor="LightGreen"
-                                    Command="{Binding ConfirmCommand}" />
-                            <Button Grid.Column="1"
-                                    Margin="-2,-2,0,-2"
-                                    Text="Undo" 
+                                    Margin="4,4,2,4"
+                                    CornerRadius="3">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ConfirmCommand}"/>
+                                </Frame.GestureRecognizers>
+                                <Label Text="CONFIRM"
+                                       TextColor="Black"
+                                       FontSize="20"/>
+                            </Frame>
+                            <Frame  Grid.Column="1"
                                     BackgroundColor="LightGreen"
-                                    Command="{Binding UndoCommand}"/>
+                                    Margin="2,4,4,4"
+                                    CornerRadius="3">
+                                <Frame.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding UndoCommand}"/>
+                                </Frame.GestureRecognizers>
+                                <Label Text="UNDO"
+                                       TextColor="Black"
+                                       FontSize="20"/>
+                            </Frame>
                         </Grid>
                         <!--Waiting Player Play-->
                         <Grid IsVisible="{Binding GameState, Converter={StaticResource GameStateToBoolConverter}, ConverterParameter={x:Static enum:GameStateEnum.WaitingPlayerPlay}}">

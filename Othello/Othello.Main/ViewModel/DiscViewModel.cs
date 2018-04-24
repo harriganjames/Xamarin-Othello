@@ -20,14 +20,14 @@ namespace Othello.Main.ViewModel
         public bool InUse
         {
             get { return _inUse; }
-            set { SetValue(ref _inUse, value, () => InUse); }
+            set { SetValue(ref _inUse, value, () => InUse, true); }
         }
 
         OthelloColor _discColor;
         public OthelloColor DiscColor
         {
             get { return _discColor; }
-            set { SetValue(ref _discColor, value, () => DiscColor); }
+            set { SetValue(ref _discColor, value, () => DiscColor, true); }
         }
 
         public OthelloColor InitialColor => _discModel.InitialColor;

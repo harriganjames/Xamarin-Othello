@@ -1,5 +1,4 @@
 ﻿using Othello.Main.Enum;
-using Othello.Main.Model;
 using Othello.Main.View;
 using System;
 using System.Collections.Concurrent;
@@ -7,9 +6,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
 namespace Othello.Main.Control
 {
@@ -22,7 +21,9 @@ namespace Othello.Main.Control
         double _cellSize;
         Rectangle _gridRect = new Rectangle();
         double _gapRatio = 0.05;
-
+        BlockingCollection<OthelloJob> _jobQueue = new BlockingCollection<OthelloJob>();
+        TaskScheduler _taskScheduler;
+        bool _debug = false;
 
         public OthelloBoardControl()
         {
@@ -30,6 +31,9 @@ namespace Othello.Main.Control
             _gridBox = new BoxView();
             _layout.BackgroundColor = Color.Linen;
             this.Content = _layout;
+
+            _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            Task.Factory.StartNew(() => ProcessQueue());
         }
 
 
@@ -131,10 +135,11 @@ namespace Othello.Main.Control
             base.OnSizeAllocated(width, height);
             if (width > 0 && height > 0)
             {
-                Debug.WriteLine($"OnSizeAllocated {width} {height}");
+                if(_debug) Debug.WriteLine($"OnSizeAllocated {width} {height}");
                 LayoutBoard();
             }
         }
+
 
 
 
@@ -152,7 +157,7 @@ namespace Othello.Main.Control
                 {
                     view.BindingContext = item;
                     _layout.Children.Add(view);
-                    var cell = new OthelloCell(view);
+                    var cell = new OthelloCell(view, ProcessCell);
                     cell.Item = item;
                     _cells.Add(item,cell);
                     view.PropertyChanged += CellView_PropertyChanged;
@@ -171,7 +176,7 @@ namespace Othello.Main.Control
                 var view = new DiscView();
                 view.BindingContext = item;
                 _layout.Children.Add(view);
-                var disc = new OthelloDisc(view);
+                var disc = new OthelloDisc(view,ProcessDisc);
                 disc.Item = item;
                 _discs.Add(item,disc);
                 view.PropertyChanged += DiscView_PropertyChanged;
@@ -181,8 +186,10 @@ namespace Othello.Main.Control
         bool _layoutBoardInProgress = false;
         bool _redoLayoutBoard = false;
 
-        async void LayoutBoard()
+        void LayoutBoard()
         {
+            if(_debug) Debug.WriteLine($"LayoutBoard - Start");
+
             if (_layoutBoardInProgress)
             {
                 _redoLayoutBoard = true;
@@ -235,13 +242,9 @@ namespace Othello.Main.Control
                 odisc.StackPosition = position++;
             }
 
-            StackAllDiscs(_discs.Values);
+            ProcessAllDiscs();
 
-            Debug.WriteLine($"LayoutBoard - b4 ProcessAllCells");
-            await ProcessAllCells();
-            Debug.WriteLine($"LayoutBoard - b4 ProcessAllDiscs");
-
-            Debug.WriteLine($"LayoutBoard - end");
+            ProcessAllCells();
 
             _layoutBoardInProgress = false;
 
@@ -250,6 +253,7 @@ namespace Othello.Main.Control
                 _redoLayoutBoard = false;
                 LayoutBoard();
             }
+            if(_debug) Debug.WriteLine($"LayoutBoard - End");
         }
 
 
@@ -258,7 +262,9 @@ namespace Othello.Main.Control
         {
             if (_layoutBoardInProgress)
                 return;
-            if (e.PropertyName == DiscView.DiscColorProperty.PropertyName)
+            //if(_debug) Debug.WriteLine($"DiscView_PropertyChanged {e.PropertyName}");
+            if (e.PropertyName == DiscView.DiscColorProperty.PropertyName
+                || e.PropertyName == DiscView.InUseProperty.PropertyName)
             {
                 var bo = sender as BindableObject;
                 if (bo != null)
@@ -267,16 +273,17 @@ namespace Othello.Main.Control
                     _discs.TryGetValue(bo.BindingContext, out odisc);
                     if (odisc != null)
                     {
-                        ProcessDisc(odisc);
+                        PushJob(new OthelloJob(odisc));
                     }
                 }
             }
         }
 
-        private async void CellView_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void CellView_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (_layoutBoardInProgress)
                 return;
+            //if(_debug) Debug.WriteLine($"CellView_PropertyChanged {e.PropertyName}");
             if (e.PropertyName==CellView.DiscProperty.PropertyName)
             {
                 var bo = sender as BindableObject;
@@ -286,56 +293,121 @@ namespace Othello.Main.Control
                     _cells.TryGetValue(bo.BindingContext, out ocell);
                     if (ocell != null)
                     {
-                        await ProcessCell(ocell);
+                        PushJob(new OthelloJob(ocell));
                     }
                 }
             }
         }
 
-        async Task ProcessAllCells()
+        void ProcessQueue()
         {
+            while (true)
+            {
+                var job = _jobQueue.Take();
+                ProcessJob(job);
+            }
+        }
+
+
+        void ProcessJob(OthelloJob job)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                if (job.OthelloItem.IsProcessing)
+                    PushJob(job);
+                else
+                    await job.OthelloItem.Process();
+            }, CancellationToken.None, TaskCreationOptions.None, _taskScheduler);
+        }
+
+        void PushJob(OthelloJob job)
+        {
+            _jobQueue.Add(job);
+        }
+
+
+        void ProcessAllCells()
+        {
+            if(_debug) Debug.WriteLine($"ProcessAllCells - Start");
             BusyCount++;
-            var tasks = new List<Task>();
             foreach (var ocell in _cells.Values)
             {
-                tasks.Add(ProcessCell(ocell));
+                PushJob(new OthelloJob(ocell));
             }
-            await Task.WhenAll(tasks.ToArray());
             BusyCount--;
+            if(_debug) Debug.WriteLine($"ProcessAllCells - End");
         }
 
         async Task ProcessCell(OthelloCell ocell)
         {
+            if(_debug) Debug.WriteLine($"ProcessCell Start {ocell.Item}");
+            ocell.IsProcessing = true;
+            if(IsAnimating)
+            {
+                await Task.Delay(new Random().Next(200));
+            }
             BusyCount++;
             if (ocell.View.Disc != null)
             {
                 OthelloDisc odisc;
                 if (_discs.TryGetValue(ocell.View.Disc, out odisc))
                 {
+                    if (ocell.OthelloDisc != odisc)
+                    {
+                        if(ocell.OthelloDisc!=null)
+                            ocell.OthelloDisc.IsProcessing = true;
+                        await MoveDiscFromCellToStack(ocell);
+                        if(ocell.OthelloDisc!=null)
+                            ocell.IsProcessing = false;
+                    }
+                    odisc.IsProcessing = true;
                     await MoveDiscToCell(odisc, ocell);
+                    odisc.IsProcessing = false;
                 }
             }
             // might need to remove ocell.InUse from here
-            else if (ocell.View.Disc==null && ocell.InUse && ocell.OthelloDisc!=null)
+            else if (ocell.View.Disc==null) // && ocell.InUse && ocell.OthelloDisc!=null)
             {
                 await MoveDiscFromCellToStack(ocell);
             }
             BusyCount--;
+            ocell.IsProcessing = false;
+            if(_debug) Debug.WriteLine($"ProcessCell End {ocell.Item}");
         }
 
-        void ProcessDisc(OthelloDisc odisc)
+        void ProcessAllDiscs()
         {
+            if(_debug) Debug.WriteLine($"ProcessAllDiscs - Start");
             BusyCount++;
+            foreach (var odisc in _discs.Values)
+            {
+                PushJob(new OthelloJob(odisc));
+            }
+            BusyCount--;
+            if(_debug) Debug.WriteLine($"ProcessAllDiscs - End");
+        }
+
+        async Task ProcessDisc(OthelloDisc odisc)
+        {
+            if(_debug) Debug.WriteLine($"ProcessDisc {odisc.Item} IsUse={odisc.InUse} Stack={odisc.StackPosition}");
+            odisc.IsProcessing = true;
+            BusyCount++;
+            if(!odisc.InUse)
+            {
+                await MoveDiscToStack(odisc);
+            }
             if (odisc.InUse && odisc.View.DiscColor != odisc.View.ActualColor)
             {
-                FlipDisc(odisc);
+                await FlipDisc(odisc);
             }
+            odisc.IsProcessing = false;
             BusyCount--;
         }
 
 
-        async void FlipDisc(OthelloDisc odisc)
+        async Task FlipDisc(OthelloDisc odisc)
         {
+            if(_debug) Debug.WriteLine($"FlipDisc {odisc.Item}");
             bool cancelled = false;
             ViewExtensions.CancelAnimations(odisc.View);
             cancelled = await odisc.View.RotateYTo(90);
@@ -346,30 +418,22 @@ namespace Othello.Main.Control
             }
         }
 
-        void StackAllDiscs(IEnumerable<OthelloDisc> odiscs)
-        {
-            BusyCount++;
-            foreach (var odisc in odiscs)
-            {
-                MoveDiscToStack(odisc);
-            }
-            BusyCount--;
-        }
-
         async Task MoveDiscFromCellToStack(OthelloCell ocell)
         {
+            if(_debug) Debug.WriteLine($"MoveDiscFromCellToStack Started Cell={ocell.Item} OthelloDisc={ocell.OthelloDisc}");
             if (ocell.OthelloDisc == null) return;
-            //ocell.OthelloDisc.InUse = false;
-            await MoveDiscToStack(ocell.OthelloDisc);
             ocell.InUse = false;
+            await MoveDiscToStack(ocell.OthelloDisc);
             ocell.OthelloDisc = null;
+            if(_debug) Debug.WriteLine($"MoveDiscFromCellToStack Finished Cell={ocell.Item} OthelloDisc={ocell.OthelloDisc}");
         }
-
 
         async Task MoveDiscToStack(OthelloDisc odisc)
         {
+            if(_debug) Debug.WriteLine($"MoveDiscToStack Started OthelloDisc={odisc}");
             odisc.View.ActualColor = odisc.View.DiscColor;
             await PositionDiscToStack(odisc);
+            if(_debug) Debug.WriteLine($"MoveDiscToStack Ended OthelloDisc={odisc}");
         }
 
         bool IsPortrait => Height > Width;
@@ -377,7 +441,6 @@ namespace Othello.Main.Control
         async Task PositionDiscToStack(OthelloDisc odisc)
         {
             ViewExtensions.CancelAnimations(odisc.View);
-
             Point start = new Point();
             Rectangle rec;
             bool isDiscVertical;
@@ -435,11 +498,12 @@ namespace Othello.Main.Control
 
         async Task MoveDiscToCell(OthelloDisc odisc, OthelloCell ocell)
         {
+            if(_debug) Debug.WriteLine($"MoveDiscToCell Started Cell={ocell.Item} Disc={odisc.Item}");
+            odisc.View.ActualColor = odisc.View.DiscColor;
             ocell.InUse = true;
             ocell.OthelloDisc = odisc;
-            odisc.View.ActualColor = odisc.View.DiscColor;
-            //odisc.DiscColor = odisc.View.DiscColor;
             await PositionDiscToCell(odisc, ocell);
+            if(_debug) Debug.WriteLine($"MoveDiscToCell Finished Cell={ocell.Item} Disc={odisc.Item}");
         }
 
         async Task PositionDiscToCell(OthelloDisc odisc, OthelloCell ocell)
@@ -466,7 +530,7 @@ namespace Othello.Main.Control
             finalRect.Width = ocell.View.Bounds.Width - 0;
             finalRect.Height = ocell.View.Bounds.Height - 0;
 
-            Debug.WriteLine($"PositionDiscToCell disc={odisc.Item} cell={ocell.Item}");
+            if(_debug) Debug.WriteLine($"PositionDiscToCell disc={odisc.Item} cell={ocell.Item}");
 
             _layout.RaiseChild(odisc.View);
 
@@ -482,30 +546,65 @@ namespace Othello.Main.Control
             return;
         }
 
-        class OthelloCell
+
+        class OthelloJob
         {
-            public OthelloCell(CellView view)
+            public OthelloJob(OthelloItem item)
             {
-                View = view;
+                OthelloItem = item;
             }
-            public CellView View { get; set; }
-            public bool InUse { get; set; }
-            public object Item { get; set; }
-            public OthelloDisc OthelloDisc { get; set; }
+            public OthelloItem OthelloItem { get; set; }
         }
 
-        class OthelloDisc
+        abstract class OthelloItem
         {
-            public OthelloDisc(DiscView view)
+            public object Item { get; set; }
+            public virtual bool IsProcessing { get; set; }
+            public bool InUse { get; set; }
+            public abstract Task Process();
+        }
+
+
+        class OthelloCell : OthelloItem
+        {
+            Func<OthelloCell,Task> _processAction;
+            public OthelloCell(CellView view, Func<OthelloCell, Task> processAction)
             {
                 View = view;
-                //DiscColor = OthelloColor.None;
+                _processAction = processAction;
+            }
+            public CellView View { get; set; }
+            public OthelloDisc OthelloDisc { get; set; }
+            public override bool IsProcessing
+            {
+                get => base.IsProcessing || (OthelloDisc!=null && OthelloDisc.IsProcessing);
+                set => base.IsProcessing = value;
+            }
+
+            public override async Task Process()
+            {
+                await _processAction(this);
+            }
+        }
+
+        class OthelloDisc : OthelloItem
+        {
+            Func<OthelloDisc,Task> _processAction;
+            public OthelloDisc(DiscView view, Func<OthelloDisc,Task> processAction)
+            {
+                View = view;
+                _processAction = processAction;
             }
             public DiscView View { get; set; }
-            public bool InUse { get; set; }
-            public object Item { get; set; }
             public int StackPosition { get; set; }
-            //public OthelloColor DiscColor { get; set; }
+            public override async Task Process()
+            {
+                await _processAction(this);
+            }
+            public override string ToString()
+            {
+                return $"OthelloDisc StackPosition={StackPosition}";
+            }
         }
     }
 }

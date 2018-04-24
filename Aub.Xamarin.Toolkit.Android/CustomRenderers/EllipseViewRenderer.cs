@@ -4,6 +4,7 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 
 using Aub.Xamarin.Toolkit.CustomViews;
+using Android.Content;
 
 [assembly: ExportRenderer(typeof(EllipseView),
                           typeof(Aub.Xamarin.Toolkit.Android.CustomRenderers.EllipseViewRenderer))]
@@ -13,6 +14,10 @@ namespace Aub.Xamarin.Toolkit.Android.CustomRenderers
     public class EllipseViewRenderer : ViewRenderer<EllipseView, EllipseDrawableView>
     {
         double width, height;
+
+        public EllipseViewRenderer(Context context) : base(context)
+        {
+        }
 
         protected override void OnElementChanged(ElementChangedEventArgs<EllipseView> args)
         {

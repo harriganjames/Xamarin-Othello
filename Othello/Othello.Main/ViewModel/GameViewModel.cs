@@ -9,6 +9,7 @@ using System.Text;
 using Xamarin.Forms;
 using Aub.Xamarin.Toolkit.Service;
 using System;
+using Othello.Main.Tools;
 
 namespace Othello.Main.ViewModel
 {
@@ -16,15 +17,19 @@ namespace Othello.Main.ViewModel
     {
         readonly BoardViewModelFactory _boardViewModelFactory;
         readonly OthelloEngineFactory _othelloEngineFactory;
+        readonly IPersistenceService _persistenceService;
 
         GameOptions _gameOptions;
         OthelloEngine _othelloEngine;
+        GameProgress _gameProgress;
 
         public GameViewModel(BoardViewModelFactory boardViewModelFactory,
-            OthelloEngineFactory othelloEngineFactory)
+            OthelloEngineFactory othelloEngineFactory,
+            IPersistenceService persistenceService)
         {
             _boardViewModelFactory = boardViewModelFactory;
             _othelloEngineFactory = othelloEngineFactory;
+            _persistenceService = persistenceService;
 
             ConfirmCommand = AddNewCommand(new Command(OnConfirm));
             UndoCommand = AddNewCommand(new Command(OnUndo));
@@ -39,7 +44,8 @@ namespace Othello.Main.ViewModel
             _othelloEngine.DevicePlayed += OnDevicePlayed;
             _othelloEngine.DeviceConfirmed += OnDeviceConfirmed;
 
-            NewGame(new GameOptions());
+            if(!RestoreFromGameProgress())
+                NewGame(new GameOptions());
         }
 
         public Command ConfirmCommand { get; set; }
@@ -141,6 +147,7 @@ namespace Othello.Main.ViewModel
             //IsPending = false;
             UpdateGame();
             //IsGameOver = _othelloEngine.IsGameOver;
+            SaveGameProgress();
         }
 
         void OnUndo()
@@ -160,6 +167,7 @@ namespace Othello.Main.ViewModel
         void OnDeviceConfirmed(object sender, EventArgs e)
         {
             UpdateGame();
+            SaveGameProgress();
         }
 
         void UpdateGame()
@@ -185,19 +193,20 @@ namespace Othello.Main.ViewModel
                 else
                 {
                     var points_suffix = difference == 1 ? String.Empty : "s";
-                    string winner;
+                    string winnerString;
+                    var winnerTurn = Turn.GetOpposite();
                     if (_gameOptions.IsSinglePlayer)
                     {
-                        if (Turn == OthelloColor.White)
-                            winner = "Player";
+                        if (winnerTurn == OthelloColor.White)
+                            winnerString = "Player";
                         else
-                            winner = "Device";
+                            winnerString = "Device";
                     }
                     else
                     {
-                        winner = Turn.ToString();
+                        winnerString = winnerTurn.ToString();
                     }
-                    result = $"{winner} wins by {difference} point{points_suffix}!";
+                    result = $"{winnerString} wins by {difference} point{points_suffix}!";
                 }
                 GameOverText = $"Game Over - {result}";
             }
@@ -225,6 +234,26 @@ namespace Othello.Main.ViewModel
                 //IsPending = true;
                 UpdateGame();
             }
+        }
+
+
+        void SaveGameProgress()
+        {
+            _gameProgress = _othelloEngine.GetGameProgress();
+            _persistenceService.Save("gameProgress",_gameProgress);
+        }
+
+        bool RestoreFromGameProgress()
+        {
+            _gameProgress = _persistenceService.Get<GameProgress>("gameProgress");
+            if(_gameProgress!=null)
+            {
+                _gameOptions = _gameProgress.GameOptions;
+                _othelloEngine.RestoreFromGameProgress(_gameProgress);
+                UpdateGame();
+                return true;
+            }
+            return false;
         }
 
     }

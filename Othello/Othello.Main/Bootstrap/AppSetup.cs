@@ -36,6 +36,7 @@ namespace Othello.Main.Bootstrap
             cb.RegisterType<OthelloEngineFactory>().SingleInstance();
 
             cb.RegisterType<UserInterfaceService>().As<IUserInterfaceService>().SingleInstance();
+            cb.RegisterType<PersistenceService>().As<IPersistenceService>().SingleInstance();
         }
 
 

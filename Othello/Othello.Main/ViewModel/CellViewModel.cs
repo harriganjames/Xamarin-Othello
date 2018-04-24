@@ -23,7 +23,7 @@ namespace Othello.Main.ViewModel
             }
             set
             {
-                SetValue(ref _disc, value, () => Disc);
+                SetValue(ref _disc, value, () => Disc, true);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Othello.Main.ViewModel
             get { return _isPending; }
             set
             {
-                SetValue(ref _isPending, value, () => IsPending);
+                SetValue(ref _isPending, value, () => IsPending, true);
             }
         }
 
@@ -47,7 +47,7 @@ namespace Othello.Main.ViewModel
             get { return _isPlaying; }
             set
             {
-                SetValue(ref _isPlaying, value, () => IsPlaying);
+                SetValue(ref _isPlaying, value, () => IsPlaying, true);
             }
         }
 

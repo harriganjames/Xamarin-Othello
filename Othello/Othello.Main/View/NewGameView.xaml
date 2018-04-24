@@ -20,22 +20,23 @@
             </Grid.RowDefinitions>
 
             <Grid>
-                <Grid.ColumnDefinitions>
+                <!--<Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="20"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                    --><!--<ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>--><!--
+                </Grid.ColumnDefinitions>-->
 
-                <Label Text="Mode"
+                <!--<Label Text="Mode"
                        FontSize="Large"
                        TextColor="DarkBlue"
                        Margin="10"
-                       VerticalOptions="Center"/>
+                       VerticalOptions="Center"/>-->
 
-                <StackLayout Grid.Column="2"
+                <StackLayout Grid.Column="0"
                              Margin="10"
                              Spacing="15"
-                             Orientation="Vertical">
+                             Orientation="Vertical"
+                             HorizontalOptions="Center">
                     <StackLayout.Resources>
                         <ResourceDictionary>
                             <Style x:Key="baseStyle" TargetType="Label">
@@ -112,8 +113,8 @@
                     Margin="10"
                     TextColor="DarkBlue"
                     BorderColor="Red"
-                    BorderWidth="3"
-                    BorderRadius="15"
+                    BorderWidth="1"
+                    BorderRadius="5"
                     Text="Start Game"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"

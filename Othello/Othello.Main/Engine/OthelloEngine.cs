@@ -89,10 +89,12 @@ namespace Othello.Main.Engine
 
         public void NewGame(GameOptions gameOptions)
         {
+            _playSet.Reset();
             _gameOptions = gameOptions;
 
             foreach (var cell in Cells.Where(c=>c.Disc!=null))
             {
+                Debug.WriteLine($"NewGame clear cell C={cell.Column} R={cell.Row}");
                 MoveDiscFromCell(cell);
             }
 
@@ -109,6 +111,56 @@ namespace Othello.Main.Engine
             //IsPlaying = false;
 
             GameState = GameStateEnum.WaitingPlayerPlay;
+        }
+
+        public GameProgress GetGameProgress()
+        {
+            return new GameProgress()
+            {
+                GameOptions = _gameOptions,
+                Turn = Turn,
+                BlackPoints = BlackPoints,
+                WhitePoints = WhitePoints,
+                Cells = new List<GameProgress.Cell>(Cells
+                                                    .Where(c => c.Disc != null)
+                                                    .Select(c => new GameProgress.Cell()
+                                                    {
+                                                        Column = c.Column,
+                                                        Row = c.Row,
+                                                        DiscColor = c.Disc.DiscColor
+                                                    }))
+            };
+        }
+
+        public void RestoreFromGameProgress(GameProgress progress)
+        {
+            Reset();
+            Turn = progress.Turn;
+            BlackPoints = progress.BlackPoints;
+            WhitePoints = progress.WhitePoints;
+            _gameOptions = progress.GameOptions;
+            MoveNextDiscToCell(OthelloColor.White, GetCell(3, 3));
+            MoveNextDiscToCell(OthelloColor.Black, GetCell(3, 4));
+            MoveNextDiscToCell(OthelloColor.Black, GetCell(4, 3));
+            MoveNextDiscToCell(OthelloColor.White, GetCell(4, 4));
+            foreach (var progressCell in progress.Cells)
+            {
+                var cell = GetCell(progressCell.Column, progressCell.Row);
+                Debug.WriteLine($"Restore cell R{progressCell.Row},C{progressCell.Column} {progressCell.DiscColor}");
+                if (cell.Disc == null)
+                    MoveNextDiscToCell(progressCell.DiscColor, cell);
+                else if (cell.Disc.DiscColor != progressCell.DiscColor)
+                    FlipCellDisc(cell);
+            }
+            if (_gameOptions.IsSinglePlayer && Turn == OthelloColor.Black)
+            {
+                GameState = GameStateEnum.WaitingDevice;
+                Device.StartTimer(TimeSpan.FromMilliseconds(1000), DevicePlayCallback);
+            }
+            else
+            {
+                GameState = GameStateEnum.WaitingPlayerPlay;
+            }
         }
 
         public bool PlayerPlayCell(CellModel playCell)
@@ -303,8 +355,8 @@ namespace Othello.Main.Engine
         {
             if (cell.Disc == null) return;
             FlipDisc(cell.Disc);
-            _playSet.Cells.Add(cell);
-            _playSet.Discs.Add(cell.Disc);
+            _playSet.AddCell(cell);
+            _playSet.AddDisc(cell.Disc);
         }
 
         void FlipDisc(DiscModel disc)
@@ -319,21 +371,23 @@ namespace Othello.Main.Engine
 
         void MoveDiscToCell(DiscModel disc, OthelloColor color, CellModel cell)
         {
+            Debug.WriteLine($"MoveDiscToCell C={cell.Column} R={cell.Row} Disc={disc}");
             if (disc == null || cell == null)
                 return;
             cell.Disc = disc;
             cell.Disc.DiscColor = color;
             disc.Cell = cell;
-            _playSet.Cells.Add(cell);
-            _playSet.Discs.Add(disc);
+            _playSet.AddCell(cell);
+            _playSet.AddDisc(disc);
         }
 
         void MoveDiscFromCell(CellModel cell)
         {
+            Debug.WriteLine($"MoveDiscFromCell C={cell.Column} R={cell.Row}");
             if (cell.Disc == null)
                 return;
-            _playSet.Discs.Add(cell.Disc);
-            _playSet.Cells.Add(cell);
+            _playSet.AddDisc(cell.Disc);
+            _playSet.AddCell(cell);
             cell.Disc.DiscColor = cell.Disc.InitialColor;
             cell.Disc.Cell = null;
             cell.Disc = null;
